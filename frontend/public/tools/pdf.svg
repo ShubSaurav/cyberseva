@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="pdfGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#EF4444" />
+      <stop offset="100%" stop-color="#B91C1C" />
+    </linearGradient>
+    <linearGradient id="sheetGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#F1F5F9" />
+    </linearGradient>
+    <filter id="docShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#0F172A" flood-opacity="0.16" />
+    </filter>
+  </defs>
+
+  <!-- Background Stacked Page -->
+  <g transform="rotate(6 256 256)" filter="url(#docShadow)">
+    <rect x="120" y="70" width="280" height="370" rx="20" fill="#E2E8F0" stroke="#CBD5E1" stroke-width="2" />
+  </g>
+
+  <!-- Foreground PDF Sheet -->
+  <g transform="translate(10, 0)" filter="url(#docShadow)">
+    <rect x="90" y="60" width="290" height="380" rx="22" fill="url(#sheetGrad)" stroke="#E2E8F0" stroke-width="3" />
+    
+    <!-- Top Folded Corner -->
+    <path d="M 320 60 L 380 120 L 320 120 Z" fill="#CBD5E1" />
+    
+    <!-- Big PDF Badge -->
+    <rect x="70" y="90" width="130" height="64" rx="16" fill="url(#pdfGrad)" />
+    <text x="135" y="136" font-family="Arial, sans-serif" font-weight="900" font-size="34" fill="#FFFFFF" text-anchor="middle" letter-spacing="1">PDF</text>
+
+    <!-- Document Content Lines -->
+    <rect x="120" y="180" width="220" height="14" rx="7" fill="#64748B" />
+    <rect x="120" y="210" width="200" height="10" rx="5" fill="#94A3B8" />
+    <rect x="120" y="232" width="230" height="10" rx="5" fill="#CBD5E1" />
+    <rect x="120" y="254" width="180" height="10" rx="5" fill="#CBD5E1" />
+
+    <!-- Compress / Merge Tool Feature Ribbon -->
+    <rect x="110" y="295" width="250" height="60" rx="14" fill="#FEF3C7" stroke="#FDE68A" stroke-width="2" />
+    <text x="130" y="322" font-family="Arial, sans-serif" font-size="13" font-weight="900" fill="#B45309">SARKARI PORTAL TOOL</text>
+    <text x="130" y="342" font-family="Arial, sans-serif" font-size="15" font-weight="900" fill="#92400E">⚡ COMPRESS &lt; 500 KB</text>
+
+    <!-- Page Number Badge -->
+    <g transform="translate(110, 380)">
+      <rect x="0" y="0" width="110" height="32" rx="8" fill="#155EEF" />
+      <text x="55" y="21" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF" text-anchor="middle">MERGE 1-PAGE</text>
+    </g>
+
+    <g transform="translate(240, 380)">
+      <rect x="0" y="0" width="120" height="32" rx="8" fill="#10B981" />
+      <text x="60" y="21" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#FFFFFF" text-anchor="middle">CUT / DELETE</text>
+    </g>
+  </g>
+</svg>

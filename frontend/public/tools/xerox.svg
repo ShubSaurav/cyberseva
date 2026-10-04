@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#E2E8F0" />
+    </linearGradient>
+    <linearGradient id="lidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#475569" />
+      <stop offset="100%" stop-color="#1E293B" />
+    </linearGradient>
+    <linearGradient id="glassLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#0284C7" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#38BDF8" stop-opacity="0.2" />
+    </linearGradient>
+    <linearGradient id="orangeTag" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF8A00" />
+      <stop offset="100%" stop-color="#E55B00" />
+    </linearGradient>
+    <filter id="machShadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="16" stdDeviation="16" flood-color="#0F172A" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <!-- Photocopier / Scanner Machine Body -->
+  <g transform="translate(40, 50)" filter="url(#machShadow)">
+    <!-- Base Body -->
+    <rect x="30" y="160" width="370" height="230" rx="24" fill="url(#bodyGrad)" stroke="#CBD5E1" stroke-width="4" />
+
+    <!-- Open Platen Lid -->
+    <path d="M 30 160 L 100 60 L 400 60 L 400 160 Z" fill="url(#lidGrad)" stroke="#334155" stroke-width="3" />
+    
+    <!-- Scanner Glass -->
+    <rect x="50" y="170" width="330" height="100" rx="8" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2" />
+    <!-- Scanning Light Bar -->
+    <rect x="180" y="172" width="24" height="96" fill="url(#glassLight)" rx="4" />
+
+    <!-- Paper Output Tray -->
+    <path d="M 60 330 L 370 330 L 390 380 L 40 380 Z" fill="#334155" />
+    <!-- White Printed Paper Coming Out -->
+    <rect x="90" y="320" width="250" height="50" rx="4" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2" />
+    <line x1="120" y1="335" x2="280" y2="335" stroke="#94A3B8" stroke-width="3" stroke-linecap="round" />
+    <line x1="120" y1="348" x2="250" y2="348" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round" />
+
+    <!-- Touch Display Screen -->
+    <rect x="310" y="190" width="70" height="60" rx="8" fill="#0F172A" stroke="#475569" stroke-width="2" />
+    <circle cx="345" cy="220" r="14" fill="#10B981" />
+    <text x="345" y="225" font-family="Arial, sans-serif" font-weight="900" font-size="11" fill="#FFFFFF" text-anchor="middle">START</text>
+
+    <!-- Xerox & Lamination Badge -->
+    <g transform="translate(10, 20)">
+      <rect x="0" y="0" width="160" height="42" rx="12" fill="url(#orangeTag)" filter="url(#machShadow)" />
+      <text x="80" y="27" font-family="Arial, sans-serif" font-weight="900" font-size="18" fill="#FFFFFF" text-anchor="middle">XEROX A4/A3</text>
+    </g>
+
+    <!-- Lamination Pouch Badge -->
+    <g transform="translate(230, 20)">
+      <rect x="0" y="0" width="180" height="42" rx="12" fill="#155EEF" filter="url(#machShadow)" />
+      <text x="90" y="27" font-family="Arial, sans-serif" font-weight="900" font-size="17" fill="#FFFFFF" text-anchor="middle">LAMINATION</text>
+    </g>
+  </g>
+</svg>
