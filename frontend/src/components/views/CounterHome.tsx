@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Sparkles, 
   ArrowRight, 
   CheckCircle2, 
   Eye, 
-  ShieldCheck, 
   Send,
   Search,
-  Printer,
+  Plus,
+  TrendingUp,
   CreditCard,
-  FileCheck2
+  Banknote,
+  Clock,
+  QrCode,
+  User,
+  Trash2,
+  HelpCircle,
+  FileText
 } from 'lucide-react';
 import { Job, ShopSettings } from '../../types';
 import { Language, translations } from '../../utils/i18n';
@@ -20,8 +26,8 @@ interface CounterHomeProps {
   onNavigate: (tab: string, state?: any) => void;
   onOpenCopilotWithQuery: (q: string) => void;
   onViewReceipt: (job: Job) => void;
-  onPurgeJob: (jobId: string) => void;
-  onQuickPrint: (job: Job) => void;
+  onOpenQuickSale: (serviceName?: string) => void;
+  onDeleteJob: (jobId: string) => void;
   language: Language;
 }
 
@@ -31,8 +37,8 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
   onNavigate,
   onOpenCopilotWithQuery,
   onViewReceipt,
-  onPurgeJob,
-  onQuickPrint,
+  onOpenQuickSale,
+  onDeleteJob,
   language
 }) => {
   const [quickInput, setQuickInput] = useState('');
@@ -48,18 +54,45 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
     }
   };
 
-  // Full suite of 10 Counter Tools with realistic visual card imagery
+  // Today's jobs only for sales calculations
+  const todayDate = new Date().toISOString().split('T')[0];
+  const todayJobs = useMemo(() => {
+    return jobs.filter(j => j.createdAt && j.createdAt.split('T')[0] === todayDate);
+  }, [jobs, todayDate]);
+
+  // Today's Sales metrics
+  const todayMetrics = useMemo(() => {
+    let total = 0;
+    let cash = 0;
+    let upi = 0;
+    let pending = 0;
+
+    todayJobs.forEach((job) => {
+      total += job.totalAmount || 0;
+      if (job.paymentStatus === 'PENDING') {
+        pending += job.totalAmount || 0;
+      } else if (job.paymentMode === 'CASH') {
+        cash += job.totalAmount || 0;
+      } else if (job.paymentMode === 'UPI_QR') {
+        upi += job.totalAmount || 0;
+      }
+    });
+
+    return { total, cash, upi, pending, count: todayJobs.length };
+  }, [todayJobs]);
+
+  // Full suite of 10 Counter Tools with NO FIXED RATES
   const tools = [
     {
       id: 'aadhaar',
       title: t.toolAadhaarTitle,
       desc: t.toolAadhaarDesc,
       image: '/tools/aadhaar.jpg',
-      badge: '₹15 Print',
+      badge: t.toolAadhaarBadge,
       badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
       category: 'id' as const,
       targetTab: 'aadhaar',
-      tag: 'UIDAI',
+      tag: 'UIDAI Layout',
       borderColor: 'hover:border-blue-500'
     },
     {
@@ -67,7 +100,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolPanTitle,
       desc: t.toolPanDesc,
       image: '/tools/pan.jpg',
-      badge: '₹20 PVC/A4',
+      badge: t.toolPanBadge,
       badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
       category: 'id' as const,
       targetTab: 'aadhaar',
@@ -79,11 +112,11 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolPassportTitle,
       desc: t.toolPassportDesc,
       image: '/tools/passport.jpg',
-      badge: '₹30 Sheet',
+      badge: t.toolPassportBadge,
       badgeColor: 'bg-orange-50 text-orange-700 border-orange-200',
       category: 'photo' as const,
       targetTab: 'photo',
-      tag: '8/16 Photos',
+      tag: 'Studio 35x45mm',
       borderColor: 'hover:border-orange-500'
     },
     {
@@ -91,7 +124,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolVoterTitle,
       desc: t.toolVoterDesc,
       image: '/tools/voter.jpg',
-      badge: '₹15 Print',
+      badge: t.toolVoterBadge,
       badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
       category: 'id' as const,
       targetTab: 'aadhaar',
@@ -103,7 +136,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolAyushmanTitle,
       desc: t.toolAyushmanDesc,
       image: '/tools/ayushman.jpg',
-      badge: '₹20 Golden',
+      badge: t.toolAyushmanBadge,
       badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
       category: 'id' as const,
       targetTab: 'aadhaar',
@@ -115,7 +148,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolAdmitTitle,
       desc: t.toolAdmitDesc,
       image: '/tools/admit_card.jpg',
-      badge: '₹10 Print',
+      badge: t.toolAdmitBadge,
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
       category: 'govt' as const,
       targetTab: 'pdf',
@@ -127,7 +160,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolPdfTitle,
       desc: t.toolPdfDesc,
       image: '/tools/pdf.svg',
-      badge: '< 500 KB',
+      badge: t.toolPdfBadge,
       badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
       category: 'govt' as const,
       targetTab: 'pdf',
@@ -139,11 +172,11 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolQrTitle,
       desc: t.toolQrDesc,
       image: '/tools/mobile_qr.jpg',
-      badge: 'Free Standee',
+      badge: t.toolQrBadge,
       badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
       category: 'govt' as const,
       targetTab: 'qr',
-      tag: 'No WhatsApp',
+      tag: 'Direct Phone',
       borderColor: 'hover:border-teal-500'
     },
     {
@@ -151,11 +184,11 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolBillTitle,
       desc: t.toolBillDesc,
       image: '/tools/bill.svg',
-      badge: '₹10 Receipt',
+      badge: t.toolBillBadge,
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
       category: 'govt' as const,
-      targetTab: 'rates',
-      tag: 'Bijli / Power',
+      targetTab: 'sales',
+      tag: 'Electricity / Power',
       borderColor: 'hover:border-amber-500'
     },
     {
@@ -163,11 +196,11 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
       title: t.toolXeroxTitle,
       desc: t.toolXeroxDesc,
       image: '/tools/xerox.svg',
-      badge: '₹3 - ₹20',
+      badge: t.toolXeroxBadge,
       badgeColor: 'bg-slate-100 text-slate-800 border-slate-300',
       category: 'photo' as const,
-      targetTab: 'rates',
-      tag: 'Xerox & Pouch',
+      targetTab: 'sales',
+      tag: 'A4/A3 Copier',
       borderColor: 'hover:border-slate-500'
     }
   ];
@@ -185,8 +218,8 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
 
   return (
     <div className="space-y-6 pb-12 animate-fadeIn max-w-7xl mx-auto">
-      {/* Friendly Counter Welcome & AI Voice Bar */}
-      <div className="clean-card p-5 sm:p-6 bg-gradient-to-r from-blue-50/80 via-white to-orange-50/80 border border-blue-100 flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* 1. Counter Greeting & AI Voice Bar */}
+      <div className="clean-card p-5 sm:p-6 bg-gradient-to-r from-blue-50/80 via-white to-emerald-50/80 border border-blue-100 flex flex-col md:flex-row items-center justify-between gap-4">
         <div>
           <h2 className="text-xl sm:text-2xl font-extrabold text-[#071A52] tracking-tight">
             {t.greeting}
@@ -217,14 +250,115 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
         </div>
       </div>
 
-      {/* TOOLS SECTION HEADER WITH CATEGORY TABS & SEARCH */}
+      {/* 2. TODAY'S SALES & CASHFLOW SUMMARY (PROMINENT DASHBOARD MODULE) */}
+      <div className="clean-card p-5 sm:p-6 space-y-4 bg-white border border-slate-200">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <TrendingUp className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-base font-extrabold text-[#071A52]">
+                {t.todaySalesHeading}
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                {t.noFixedRateNotice}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onNavigate('qr')}
+              className="px-3.5 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-[#155EEF] font-extrabold text-xs flex items-center gap-1.5 transition-colors"
+            >
+              <QrCode className="w-4 h-4" />
+              <span>{t.receiveFilesBtn}</span>
+            </button>
+
+            <button
+              onClick={() => onOpenQuickSale()}
+              className="btn-green px-4 py-2 font-extrabold text-xs flex items-center gap-1.5 shadow-sm"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t.quickSaleBtn}</span>
+            </button>
+          </div>
+        </div>
+
+        {/* 4 Financial Quick Tiles */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {/* Tile 1: Total Today */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-50 to-white border border-emerald-200">
+            <span className="text-[10px] font-extrabold text-emerald-800 uppercase block tracking-wider">
+              {t.todayTotal}
+            </span>
+            <div className="text-xl sm:text-2xl font-extrabold text-[#071A52] mt-0.5">
+              ₹{todayMetrics.total.toLocaleString('en-IN')}
+            </div>
+            <span className="text-[10px] text-slate-500 font-bold block mt-1">
+              {todayMetrics.count} {t.transactionsCount}
+            </span>
+          </div>
+
+          {/* Tile 2: Cash in hand */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-50 to-white border border-blue-200">
+            <span className="text-[10px] font-extrabold text-blue-800 uppercase block tracking-wider">
+              {t.cashCollected}
+            </span>
+            <div className="text-xl sm:text-2xl font-extrabold text-[#071A52] mt-0.5">
+              ₹{todayMetrics.cash.toLocaleString('en-IN')}
+            </div>
+            <span className="text-[10px] text-slate-500 font-medium block mt-1">
+              In drawer / counter
+            </span>
+          </div>
+
+          {/* Tile 3: UPI / QR */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-50 to-white border border-purple-200">
+            <span className="text-[10px] font-extrabold text-purple-800 uppercase block tracking-wider">
+              {t.upiReceived}
+            </span>
+            <div className="text-xl sm:text-2xl font-extrabold text-[#071A52] mt-0.5">
+              ₹{todayMetrics.upi.toLocaleString('en-IN')}
+            </div>
+            <span className="text-[10px] text-slate-500 font-medium block mt-1">
+              Direct to bank
+            </span>
+          </div>
+
+          {/* Tile 4: Pending / Udhar */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-50 to-white border border-amber-200">
+            <span className="text-[10px] font-extrabold text-amber-800 uppercase block tracking-wider">
+              {t.pendingUdhar}
+            </span>
+            <div className="text-xl sm:text-2xl font-extrabold text-amber-900 mt-0.5">
+              ₹{todayMetrics.pending.toLocaleString('en-IN')}
+            </div>
+            <span className="text-[10px] text-slate-500 font-medium block mt-1">
+              Customer balance
+            </span>
+          </div>
+        </div>
+
+        <div className="flex justify-end pt-1">
+          <button
+            onClick={() => onNavigate('sales')}
+            className="text-xs font-extrabold text-[#155EEF] hover:underline flex items-center gap-1"
+          >
+            <span>{t.viewDetailedReport}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. ALL SERVICES & TOOLS GRID (NO FIXED RATES / NO MRP) */}
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h3 className="text-lg sm:text-xl font-extrabold text-[#071A52] flex items-center gap-2">
               <span>{t.allToolsHeading}</span>
               <span className="text-xs bg-blue-100 text-[#155EEF] font-extrabold px-2.5 py-0.5 rounded-full">
-                {filteredTools.length} टूल्स
+                {filteredTools.length}
               </span>
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
@@ -290,7 +424,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
         </div>
       </div>
 
-      {/* 10 VISUAL TOOL BOXES WITH REAL CARD IMAGES AS ICONS */}
+      {/* 10 Visual Tool Boxes with Real Card Imagery */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4">
         {filteredTools.map((tool) => (
           <div
@@ -327,7 +461,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
             {/* Bottom Action Strip */}
             <div className="pt-2.5 mt-2.5 border-t border-slate-100 flex items-center justify-between">
               <span className="text-[10px] font-bold text-slate-400">
-                1-क्लिक
+                1-Click
               </span>
               <span className="text-[11px] font-extrabold text-[#155EEF] flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                 <span>{t.startServiceBtn}</span>
@@ -337,101 +471,103 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
         ))}
       </div>
 
-      {/* TODAY'S COUNTER JOBS TABLE */}
+      {/* 4. TODAY'S SALES & ACTIVITY FEED TABLE */}
       <div className="clean-card p-5 space-y-4">
         <div className="flex items-center justify-between pb-3 border-b border-slate-200">
           <div>
             <h3 className="text-base font-extrabold text-[#071A52] flex items-center gap-2">
-              <span>{t.jobsHeading}</span>
+              <span>{t.recentActivityHeading}</span>
               <span className="text-xs bg-slate-100 text-slate-700 font-bold px-2 py-0.5 rounded-full">
-                {jobs.length} {t.jobsDone}
+                {todayJobs.length} {t.transactionsCount}
               </span>
             </h3>
             <p className="text-xs text-slate-500">
-              {t.jobsSub}
+              {t.recentActivitySub}
             </p>
           </div>
           <button
-            onClick={() => onNavigate('jobs')}
+            onClick={() => onNavigate('sales')}
             className="text-xs font-extrabold text-[#155EEF] hover:underline"
           >
-            {t.viewAllJobs} ({jobs.length}) →
+            {t.viewDetailedReport}
           </button>
         </div>
 
-        {/* Clean Table */}
+        {/* Activity Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
-              <tr>
-                <th className="py-3 px-4">{t.colJobId}</th>
-                <th className="py-3 px-4">{t.colCustomer}</th>
-                <th className="py-3 px-4">{t.colService}</th>
-                <th className="py-3 px-4">{t.colAmount}</th>
-                <th className="py-3 px-4">{t.colStatus}</th>
-                <th className="py-3 px-4 text-right">{t.colActions}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {jobs.slice(0, 5).map((job) => (
-                <tr key={job.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="py-3 px-4 font-mono font-bold text-[#071A52]">
-                    {job.jobCode}
-                  </td>
-                  <td className="py-3 px-4 font-bold text-slate-900">
-                    {job.customerName}
-                  </td>
-                  <td className="py-3 px-4 text-slate-700 font-medium">
-                    {job.services.map(s => s.name).join(', ')}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="font-extrabold text-[#071A52]">₹{job.totalAmount}</span>
-                    <span className="text-[10px] text-slate-500 ml-1">({job.paymentMode})</span>
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      job.status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'
-                    }`}>
-                      <CheckCircle2 className="w-3 h-3" />
-                      <span>{job.status === 'COMPLETED' ? t.statusPrinted : job.status}</span>
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <button
-                        onClick={() => onViewReceipt(job)}
-                        className="px-2.5 py-1 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-[11px] flex items-center gap-1"
-                        title={t.btnReceipt}
-                      >
-                        <Eye className="w-3 h-3 text-slate-500" />
-                        <span>{t.btnReceipt}</span>
-                      </button>
-
-                      <button
-                        onClick={() => onQuickPrint(job)}
-                        className="px-2.5 py-1 rounded-lg bg-blue-50 text-[#155EEF] hover:bg-blue-100 font-bold text-[11px] flex items-center gap-1"
-                        title={t.btnPrint}
-                      >
-                        <Printer className="w-3 h-3" />
-                        <span>{t.btnPrint}</span>
-                      </button>
-
-                      {job.hasTemporaryFiles && (
-                        <button
-                          onClick={() => onPurgeJob(job.id)}
-                          className="px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold text-[10px] flex items-center gap-1"
-                          title={t.btnPurge}
-                        >
-                          <ShieldCheck className="w-3 h-3" />
-                          <span>{t.btnPurge}</span>
-                        </button>
-                      )}
-                    </div>
-                  </td>
+          {todayJobs.length === 0 ? (
+            <div className="text-center py-6 text-slate-400 text-xs">
+              {t.noSalesToday}
+            </div>
+          ) : (
+            <table className="w-full text-xs text-left">
+              <thead className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200">
+                <tr>
+                  <th className="py-3 px-4">{t.colJobId}</th>
+                  <th className="py-3 px-4">{t.colTime}</th>
+                  <th className="py-3 px-4">{t.colCustomer}</th>
+                  <th className="py-3 px-4">{t.colService}</th>
+                  <th className="py-3 px-4">{t.colAmount}</th>
+                  <th className="py-3 px-4">{t.colPayment}</th>
+                  <th className="py-3 px-4">{t.colStaff}</th>
+                  <th className="py-3 px-4 text-right">{t.colActions}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {todayJobs.slice(0, 6).map((job) => (
+                  <tr key={job.id} className="hover:bg-slate-50 transition-colors">
+                    <td className="py-3 px-4 font-mono font-bold text-[#071A52]">
+                      {job.jobCode}
+                    </td>
+                    <td className="py-3 px-4 text-slate-500 whitespace-nowrap">
+                      {job.createdAt ? new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}
+                    </td>
+                    <td className="py-3 px-4 font-bold text-slate-900">
+                      {job.customerName}
+                    </td>
+                    <td className="py-3 px-4 text-slate-700 font-medium">
+                      {job.services.map(s => `${s.name}${s.quantity > 1 ? ` (x${s.quantity})` : ''}`).join(', ') || 'Counter Service'}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="font-extrabold text-[#071A52]">₹{job.totalAmount}</span>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                        job.paymentStatus === 'PENDING'
+                          ? 'bg-amber-100 text-amber-800'
+                          : job.paymentMode === 'CASH'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-blue-100 text-[#155EEF]'
+                      }`}>
+                        {job.paymentStatus === 'PENDING' ? '⏳ Due' : job.paymentMode === 'CASH' ? '💵 Cash' : '💳 UPI'}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-slate-600 whitespace-nowrap">
+                      {job.operator}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => onViewReceipt(job)}
+                          className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-700"
+                          title={t.btnReceipt}
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => onDeleteJob(job.id)}
+                          className="p-1.5 rounded-lg hover:bg-rose-50 text-slate-400 hover:text-rose-600"
+                          title={t.btnDelete}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

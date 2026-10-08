@@ -139,7 +139,7 @@ export const PassportStudio: React.FC<PassportStudioProps> = ({ onPrint, languag
                 }`}
               >
                 {t.photos8}
-                <span className="block text-[10px] font-normal opacity-90">{t.sheet30}</span>
+                <span className="block text-[10px] font-normal opacity-90">A4 Standard Sheet</span>
               </button>
 
               <button
@@ -151,7 +151,7 @@ export const PassportStudio: React.FC<PassportStudioProps> = ({ onPrint, languag
                 }`}
               >
                 {t.photos16}
-                <span className="block text-[10px] font-normal opacity-90">{t.sheet50}</span>
+                <span className="block text-[10px] font-normal opacity-90">A4 Full Sheet</span>
               </button>
 
               <button
@@ -163,7 +163,7 @@ export const PassportStudio: React.FC<PassportStudioProps> = ({ onPrint, languag
                 }`}
               >
                 {t.photos4}
-                <span className="block text-[10px] font-normal opacity-90">{t.sheet20}</span>
+                <span className="block text-[10px] font-normal opacity-90">4x6 Photo Paper</span>
               </button>
             </div>
           </div>
@@ -300,7 +300,7 @@ export const PassportStudio: React.FC<PassportStudioProps> = ({ onPrint, languag
                 className="btn-orange px-6 py-3 font-extrabold text-sm flex items-center gap-2"
               >
                 <Printer className="w-4 h-4" />
-                <span>{t.printPhotosBtn} ({count}x - ₹{count === 16 ? 50 : count === 4 ? 20 : 30})</span>
+                <span>{t.printPhotosBtn} ({count}x)</span>
               </button>
             </div>
           </div>

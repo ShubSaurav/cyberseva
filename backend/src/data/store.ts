@@ -1,4 +1,15 @@
 import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs';
+import path from 'path';
+
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  phone?: string;
+  active: boolean;
+  createdAt: string;
+}
 
 export interface ShopSettings {
   shopName: string;
@@ -14,6 +25,7 @@ export interface ShopSettings {
   autoPurgeMinutes: number;
   currency: string;
   pricingMatrix: Record<string, number>;
+  staffMembers: StaffMember[];
 }
 
 export interface Printer {
@@ -24,7 +36,7 @@ export interface Printer {
   status: 'ONLINE' | 'OFFLINE' | 'PRINTING' | 'LOW_PAPER' | 'ERROR';
   location: string;
   isDefault: boolean;
-  type: 'Laser Monochrome' | 'Color Ink Tank' | 'All-in-One Inkjet';
+  type: 'Laser Monochrome' | 'Color Ink Tank' | 'All-in-One Inkjet' | string;
   connection: 'USB 3.0' | 'WiFi' | 'Ethernet';
   tonerBlack: number; // percentage
   inkCyan?: number;
@@ -161,8 +173,50 @@ class CyberSevaStore {
       'pdf_merge_edit': 10,
       'online_form_apply': 50,
       'pvc_card_print': 60
-    }
+    },
+    staffMembers: [
+      { id: 'staff-1', name: 'Rajesh Sharma (Owner)', role: 'Owner', phone: '+91 98765 43210', active: true, createdAt: '2026-10-01' },
+      { id: 'staff-2', name: 'Vikas Kumar (Counter)', role: 'Operator', phone: '+91 97654 32109', active: true, createdAt: '2026-10-02' }
+    ]
   };
+
+  constructor() {
+    this.loadFromDisk();
+  }
+
+  saveToDisk() {
+    try {
+      const dataDir = path.join(__dirname, '../../data');
+      if (!fs.existsSync(dataDir)) {
+        fs.mkdirSync(dataDir, { recursive: true });
+      }
+      const filePath = path.join(dataDir, 'cyberseva_db.json');
+      const dump = {
+        settings: this.settings,
+        jobs: this.jobs,
+        auditLogs: this.auditLogs
+      };
+      fs.writeFileSync(filePath, JSON.stringify(dump, null, 2), 'utf-8');
+    } catch (e) {
+      console.error('Failed to save store to disk:', e);
+    }
+  }
+
+  loadFromDisk() {
+    try {
+      const filePath = path.join(__dirname, '../../data/cyberseva_db.json');
+      if (fs.existsSync(filePath)) {
+        const raw = fs.readFileSync(filePath, 'utf-8');
+        const dump = JSON.parse(raw);
+        if (dump.settings) this.settings = { ...this.settings, ...dump.settings };
+        if (dump.jobs && Array.isArray(dump.jobs) && dump.jobs.length > 0) this.jobs = dump.jobs;
+        if (dump.auditLogs) this.auditLogs = dump.auditLogs;
+        console.log(`[CyberSeva] Restored ${this.jobs.length} sales records from persistence.`);
+      }
+    } catch (e) {
+      console.error('Failed to load store from disk:', e);
+    }
+  }
 
   printers: Printer[] = [
     {

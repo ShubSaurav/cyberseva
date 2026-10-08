@@ -73,7 +73,24 @@ export const api = {
     }
   },
 
-  // Jobs
+  // Staff
+  addStaff: async (staffData: { name: string; role: string; phone?: string }) => {
+    const res = await fetch(`${API_BASE}/settings/staff`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(staffData)
+    });
+    return await res.json();
+  },
+
+  deleteStaff: async (id: string) => {
+    const res = await fetch(`${API_BASE}/settings/staff/${id}`, {
+      method: 'DELETE'
+    });
+    return await res.json();
+  },
+
+  // Jobs & Sales
   getJobs: async (): Promise<Job[]> => {
     try {
       const res = await fetch(`${API_BASE}/jobs`);
@@ -92,6 +109,33 @@ export const api = {
     });
     const data = await res.json();
     return data.data;
+  },
+
+  logSale: async (saleData: {
+    serviceName: string;
+    totalAmount: number;
+    quantity?: number;
+    paymentMode?: string;
+    paymentStatus?: string;
+    operator?: string;
+    customerName?: string;
+    customerPhone?: string;
+    notes?: string;
+  }): Promise<Job> => {
+    const res = await fetch(`${API_BASE}/jobs`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(saleData)
+    });
+    const data = await res.json();
+    return data.data;
+  },
+
+  deleteJob: async (id: string) => {
+    const res = await fetch(`${API_BASE}/jobs/${id}`, {
+      method: 'DELETE'
+    });
+    return await res.json();
   },
 
   updateJob: async (id: string, updates: Partial<Job>) => {

@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/common/Header';
 import { CounterHome } from './components/views/CounterHome';
 import { AadhaarStudio } from './components/views/AadhaarStudio';
 import { PassportStudio } from './components/views/PassportStudio';
 import { PdfStudio } from './components/views/PdfStudio';
 import { CustomerQrView } from './components/views/CustomerQrView';
+import { SalesKhataView } from './components/views/SalesKhataView';
+import { SettingsStaffView } from './components/views/SettingsStaffView';
 import { HistoryView } from './components/views/HistoryView';
-import { SettingsRatesView } from './components/views/SettingsRatesView';
 import { CustomerUploadView } from './components/views/CustomerUploadView';
 
 import { SimplePrintModal } from './components/common/SimplePrintModal';
 import { SimpleReceiptModal } from './components/common/SimpleReceiptModal';
 import { SimpleCopilotModal } from './components/common/SimpleCopilotModal';
+import { QuickSaleModal } from './components/common/QuickSaleModal';
 import { HelpModal } from './components/common/HelpModal';
 
 import { api } from './services/api';
@@ -70,17 +72,25 @@ export function App() {
     language: 'hi',
     autoPurgeMinutes: 15,
     currency: '₹',
-    pricingMatrix: {
-      'a4_bw_single': 3,
-      'a4_bw_both': 5,
-      'a4_color_single': 10,
-      'aadhaar_smart_print': 15,
-      'passport_photo_8': 30,
-      'passport_photo_16': 50,
-      'document_scan': 5,
-      'lamination_a4': 20,
-      'pdf_merge_edit': 10
-    }
+    pricingMatrix: {},
+    staffMembers: [
+      {
+        id: 'staff-1',
+        name: 'Amit Verma',
+        role: 'Operator',
+        phone: '+91 98234 11223',
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString()
+      },
+      {
+        id: 'staff-2',
+        name: 'Sunil Kumar',
+        role: 'Assistant',
+        phone: '+91 97112 55667',
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString()
+      }
+    ]
   });
 
   const [printers, setPrinters] = useState<Printer[]>([
@@ -119,63 +129,7 @@ export function App() {
     }
   ]);
 
-  const [jobs, setJobs] = useState<Job[]>([
-    {
-      id: 'job-10293',
-      jobCode: '#10293',
-      customerName: 'Amit Kumar Verma',
-      customerPhone: '+91 98234 11223',
-      services: [
-        { id: 's1', name: 'Aadhaar Smart Print (A4)', category: 'PRINT', unitPrice: 15, quantity: 1, total: 15 }
-      ],
-      subtotal: 15,
-      discount: 0,
-      totalAmount: 15,
-      paymentMode: 'UPI_QR',
-      paymentStatus: 'PAID',
-      status: 'COMPLETED',
-      operator: 'Rajesh (Owner)',
-      createdAt: new Date().toISOString(),
-      completedAt: new Date().toISOString(),
-      hasTemporaryFiles: false
-    },
-    {
-      id: 'job-10294',
-      jobCode: '#10294',
-      customerName: 'Pooja Tiwari',
-      customerPhone: '+91 97112 55667',
-      services: [
-        { id: 's2', name: '8 Passport Photos (Glossy)', category: 'PHOTO', unitPrice: 30, quantity: 1, total: 30 }
-      ],
-      subtotal: 30,
-      discount: 0,
-      totalAmount: 30,
-      paymentMode: 'UPI_QR',
-      paymentStatus: 'PAID',
-      status: 'COMPLETED',
-      operator: 'Rajesh (Owner)',
-      createdAt: new Date().toISOString(),
-      hasTemporaryFiles: true
-    },
-    {
-      id: 'job-10295',
-      jobCode: '#10295',
-      customerName: 'Walk-in Student',
-      customerPhone: '',
-      services: [
-        { id: 's3', name: 'Admit Card B&W Single A4', category: 'PRINT', unitPrice: 3, quantity: 2, total: 6 }
-      ],
-      subtotal: 6,
-      discount: 0,
-      totalAmount: 6,
-      paymentMode: 'CASH',
-      paymentStatus: 'PAID',
-      status: 'COMPLETED',
-      operator: 'Rajesh (Owner)',
-      createdAt: new Date().toISOString(),
-      hasTemporaryFiles: true
-    }
-  ]);
+  const [jobs, setJobs] = useState<Job[]>([]);
 
   // Modals
   const [isCopilotOpen, setIsCopilotOpen] = useState(false);
@@ -184,6 +138,10 @@ export function App() {
   const [printDocUrl, setPrintDocUrl] = useState<string | undefined>(undefined);
   const [printDocName, setPrintDocName] = useState<string>('Document.pdf');
   const [selectedReceiptJob, setSelectedReceiptJob] = useState<Job | null>(null);
+
+  // Quick Sale Modal State
+  const [isQuickSaleOpen, setIsQuickSaleOpen] = useState(false);
+  const [quickSaleInitialService, setQuickSaleInitialService] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     loadLiveStore();
@@ -198,7 +156,69 @@ export function App() {
       ]);
       if (fetchedSettings) setSettings(fetchedSettings);
       if (fetchedPrinters?.printers?.length) setPrinters(fetchedPrinters.printers);
-      if (fetchedJobs?.length) setJobs(fetchedJobs);
+      if (fetchedJobs?.length) {
+        setJobs(fetchedJobs);
+      } else {
+        // Default today's starter jobs if empty
+        const todayStr = new Date().toISOString();
+        setJobs([
+          {
+            id: 'job-10293',
+            jobCode: '#10293',
+            customerName: 'Amit Kumar Verma',
+            customerPhone: '+91 98234 11223',
+            services: [
+              { id: 's1', name: 'Aadhaar Smart Print (A4)', category: 'PRINT', unitPrice: 20, quantity: 1, total: 20 }
+            ],
+            subtotal: 20,
+            discount: 0,
+            totalAmount: 20,
+            paymentMode: 'UPI_QR',
+            paymentStatus: 'PAID',
+            status: 'COMPLETED',
+            operator: 'Rajesh Sharma',
+            createdAt: todayStr,
+            completedAt: todayStr,
+            hasTemporaryFiles: false
+          },
+          {
+            id: 'job-10294',
+            jobCode: '#10294',
+            customerName: 'Pooja Tiwari',
+            customerPhone: '+91 97112 55667',
+            services: [
+              { id: 's2', name: '8 Passport Photos (Glossy)', category: 'PHOTO', unitPrice: 50, quantity: 1, total: 50 }
+            ],
+            subtotal: 50,
+            discount: 0,
+            totalAmount: 50,
+            paymentMode: 'CASH',
+            paymentStatus: 'PAID',
+            status: 'COMPLETED',
+            operator: 'Amit Verma',
+            createdAt: todayStr,
+            hasTemporaryFiles: false
+          },
+          {
+            id: 'job-10295',
+            jobCode: '#10295',
+            customerName: 'Ravi Ranjan (Student)',
+            customerPhone: '',
+            services: [
+              { id: 's3', name: 'Admit Card B&W Single A4', category: 'PRINT', unitPrice: 10, quantity: 2, total: 20 }
+            ],
+            subtotal: 20,
+            discount: 0,
+            totalAmount: 20,
+            paymentMode: 'PENDING',
+            paymentStatus: 'PENDING',
+            status: 'COMPLETED',
+            operator: 'Sunil Kumar',
+            createdAt: todayStr,
+            hasTemporaryFiles: false
+          }
+        ]);
+      }
     } catch (e) {
       console.log('Running in local memory mode', e);
     }
@@ -222,6 +242,7 @@ export function App() {
         setIsHelpOpen(false);
         setIsPrintModalOpen(false);
         setIsCopilotOpen(false);
+        setIsQuickSaleOpen(false);
         setSelectedReceiptJob(null);
       }
     };
@@ -249,13 +270,73 @@ export function App() {
     }
   };
 
-  const handlePurgeJob = async (jobId: string) => {
-    await api.purgeJobFiles(jobId);
-    setJobs(jobs.map(j => j.id === jobId ? { ...j, hasTemporaryFiles: false } : j));
-    alert('ग्राहक की फाइलें काउंटर मेमोरी से सुरक्षित मिटा दी गई हैं।');
+  const handleOpenQuickSale = (serviceName?: string) => {
+    setQuickSaleInitialService(serviceName);
+    setIsQuickSaleOpen(true);
   };
 
-  const todayRevenue = jobs.reduce((sum, j) => sum + (j.paymentStatus === 'PAID' ? j.totalAmount : 0), 0) + 2840;
+  const handleSaveSale = async (saleData: any): Promise<Job> => {
+    try {
+      const newJob = await api.logSale(saleData);
+      setJobs(prev => [newJob, ...prev]);
+      return newJob;
+    } catch (e) {
+      console.log('Local memory fallback for sale', e);
+      const total = (saleData.unitPrice || 0) * (saleData.quantity || 1);
+      const localJob: Job = {
+        id: `sale-${Date.now()}`,
+        jobCode: `#${Math.floor(10000 + Math.random() * 90000)}`,
+        customerName: saleData.customerName || (language === 'en' ? 'Walk-in Customer' : 'काउंटर ग्राहक'),
+        customerPhone: saleData.customerPhone || '',
+        services: [
+          {
+            id: `s-${Date.now()}`,
+            name: saleData.serviceName,
+            category: 'CUSTOM',
+            unitPrice: saleData.unitPrice,
+            quantity: saleData.quantity || 1,
+            total
+          }
+        ],
+        subtotal: total,
+        discount: 0,
+        totalAmount: total,
+        paymentMode: saleData.paymentMode === 'CASH' ? 'CASH' : saleData.paymentMode === 'PENDING' ? 'PENDING' : 'UPI_QR',
+        paymentStatus: saleData.paymentMode === 'PENDING' ? 'PENDING' : 'PAID',
+        status: 'COMPLETED',
+        operator: saleData.staffName || settings.ownerName,
+        createdAt: new Date().toISOString(),
+        hasTemporaryFiles: false
+      };
+      setJobs(prev => [localJob, ...prev]);
+      return localJob;
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string) => {
+    const confirmMsg = language === 'en'
+      ? 'Are you sure you want to delete this sale entry?'
+      : language === 'hinglish'
+      ? 'Kya aap sach mein ye entry delete karna chahte hain?'
+      : 'क्या आप इस सेल एंट्री को हटाना चाहते हैं?';
+
+    if (window.confirm(confirmMsg)) {
+      try {
+        await api.deleteJob(jobId);
+      } catch (e) {
+        console.error(e);
+      }
+      setJobs(prev => prev.filter(j => j.id !== jobId));
+    }
+  };
+
+  // Compute Today's Revenue dynamically (Paid only)
+  const todayDate = new Date().toISOString().split('T')[0];
+  const todayRevenue = useMemo(() => {
+    return jobs
+      .filter(j => j.createdAt && j.createdAt.split('T')[0] === todayDate && j.paymentStatus === 'PAID')
+      .reduce((sum, j) => sum + (j.totalAmount || 0), 0);
+  }, [jobs, todayDate]);
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] text-[#0F172A] flex flex-col font-sans antialiased transition-all">
@@ -270,6 +351,7 @@ export function App() {
           setIsCopilotOpen(true);
         }}
         onOpenHelp={() => setIsHelpOpen(true)}
+        onOpenQuickSale={() => handleOpenQuickSale()}
         todayRevenue={todayRevenue}
         language={language}
         setLanguage={handleSetLanguage}
@@ -289,8 +371,8 @@ export function App() {
               setIsCopilotOpen(true);
             }}
             onViewReceipt={(j) => setSelectedReceiptJob(j)}
-            onPurgeJob={handlePurgeJob}
-            onQuickPrint={(j) => handleOpenPrint('', `${j.jobCode}_RePrint.pdf`)}
+            onOpenQuickSale={handleOpenQuickSale}
+            onDeleteJob={handleDeleteJob}
             language={language}
           />
         )}
@@ -309,9 +391,29 @@ export function App() {
 
         {activeTab === 'qr' && (
           <CustomerQrView
-            onFilesReady={(files) => {
+            onFilesReady={(_files) => {
               setActiveTab('aadhaar');
             }}
+            language={language}
+          />
+        )}
+
+        {activeTab === 'sales' && (
+          <SalesKhataView
+            jobs={jobs}
+            settings={settings}
+            language={language}
+            onOpenQuickSale={() => handleOpenQuickSale()}
+            onDeleteJob={handleDeleteJob}
+            onViewReceipt={(j: Job) => setSelectedReceiptJob(j)}
+          />
+        )}
+
+        {activeTab === 'settings' && (
+          <SettingsStaffView
+            settings={settings}
+            onUpdateSettings={setSettings}
+            language={language}
           />
         )}
 
@@ -319,21 +421,32 @@ export function App() {
           <HistoryView
             jobs={jobs}
             onViewReceipt={(j) => setSelectedReceiptJob(j)}
-            onPurgeJob={handlePurgeJob}
+            onPurgeJob={async (jobId) => {
+              await api.purgeJobFiles(jobId);
+              setJobs(jobs.map(j => j.id === jobId ? { ...j, hasTemporaryFiles: false } : j));
+            }}
             onQuickPrint={(j) => handleOpenPrint('', `${j.jobCode}_Print.pdf`)}
             language={language}
           />
         )}
-
-        {activeTab === 'rates' && (
-          <SettingsRatesView
-            settings={settings}
-            onUpdateSettings={setSettings}
-          />
-        )}
       </main>
 
-      {/* Minimal Clean Modals */}
+      {/* Quick Sale Logger Modal */}
+      <QuickSaleModal
+        isOpen={isQuickSaleOpen}
+        onClose={() => setIsQuickSaleOpen(false)}
+        onSaveSale={async (saleData, printReceipt) => {
+          const newJob = await handleSaveSale(saleData);
+          if (printReceipt && newJob) {
+            setSelectedReceiptJob(newJob);
+          }
+        }}
+        settings={settings}
+        language={language}
+        initialService={quickSaleInitialService}
+      />
+
+      {/* Print Dispatch Modal */}
       <SimplePrintModal
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
@@ -345,6 +458,7 @@ export function App() {
         }}
       />
 
+      {/* Bill Receipt Modal */}
       <SimpleReceiptModal
         isOpen={selectedReceiptJob !== null}
         onClose={() => setSelectedReceiptJob(null)}
@@ -352,6 +466,7 @@ export function App() {
         settings={settings}
       />
 
+      {/* AI Copilot Modal */}
       <SimpleCopilotModal
         isOpen={isCopilotOpen}
         onClose={() => setIsCopilotOpen(false)}
@@ -370,3 +485,4 @@ export function App() {
 }
 
 export default App;
+

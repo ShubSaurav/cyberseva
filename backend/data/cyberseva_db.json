@@ -1,0 +1,245 @@
+{
+  "settings": {
+    "shopName": "Sharma Digital Seva & Cyber Point",
+    "tagline": "One Counter. Every Service.",
+    "ownerName": "Rajesh Sharma",
+    "phone": "+91 98765 43210",
+    "email": "sharmacyberpoint@gmail.com",
+    "address": "Near Head Post Office, Civil Lines, Kanpur, UP - 208001",
+    "upiId": "sharmacyber@okhdfcbank",
+    "gstin": "09AAACH7409R1ZZ",
+    "defaultPrinterId": "printer-hp-1",
+    "language": "hinglish",
+    "autoPurgeMinutes": 15,
+    "currency": "₹",
+    "pricingMatrix": {
+      "a4_bw_single": 3,
+      "a4_bw_both": 5,
+      "a4_color_single": 10,
+      "a4_color_both": 18,
+      "aadhaar_smart_print": 15,
+      "aadhaar_laminated": 25,
+      "pan_print": 10,
+      "passport_photo_8": 30,
+      "passport_photo_16": 50,
+      "document_scan": 5,
+      "lamination_a4": 20,
+      "lamination_id": 10,
+      "pdf_merge_edit": 10,
+      "online_form_apply": 50,
+      "pvc_card_print": 60
+    },
+    "staffMembers": [
+      {
+        "id": "staff-1",
+        "name": "Rajesh Sharma (Owner)",
+        "role": "Owner",
+        "phone": "+91 98765 43210",
+        "active": true,
+        "createdAt": "2026-10-01"
+      },
+      {
+        "id": "staff-2",
+        "name": "Vikas Kumar (Counter)",
+        "role": "Operator",
+        "phone": "+91 97654 32109",
+        "active": true,
+        "createdAt": "2026-10-02"
+      }
+    ]
+  },
+  "jobs": [
+    {
+      "id": "job-a7ed4028",
+      "jobCode": "#10295",
+      "customerName": "Ramesh Kumar",
+      "customerPhone": "",
+      "services": [
+        {
+          "id": "s-1791438741563",
+          "name": "Aadhaar Smart Print",
+          "category": "PRINT",
+          "unitPrice": 40,
+          "quantity": 1,
+          "total": 40
+        }
+      ],
+      "subtotal": 40,
+      "discount": 0,
+      "totalAmount": 40,
+      "paymentMode": "CASH",
+      "paymentStatus": "PAID",
+      "status": "COMPLETED",
+      "operator": "Rajesh Sharma",
+      "notes": "",
+      "createdAt": "2026-10-08T05:52:21.563Z",
+      "completedAt": "2026-10-08T05:52:21.563Z",
+      "hasTemporaryFiles": false
+    },
+    {
+      "id": "job-10293",
+      "jobCode": "#10293",
+      "customerName": "Amit Kumar Verma",
+      "customerPhone": "+91 98234 11223",
+      "services": [
+        {
+          "id": "s1",
+          "name": "Aadhaar Smart Print (Front + Back A4)",
+          "category": "PRINT",
+          "unitPrice": 15,
+          "quantity": 1,
+          "total": 15
+        },
+        {
+          "id": "s2",
+          "name": "A4 Lamination (125 Micron)",
+          "category": "LAMINATION",
+          "unitPrice": 20,
+          "quantity": 1,
+          "total": 20
+        }
+      ],
+      "subtotal": 35,
+      "discount": 0,
+      "totalAmount": 35,
+      "paymentMode": "UPI_QR",
+      "paymentStatus": "PAID",
+      "status": "COMPLETED",
+      "operator": "Rajesh (Owner)",
+      "createdAt": "2026-10-04T10:15:00.000Z",
+      "completedAt": "2026-10-04T10:22:00.000Z",
+      "hasTemporaryFiles": false,
+      "purgedAt": "2026-10-04T10:25:00.000Z"
+    },
+    {
+      "id": "job-10294",
+      "jobCode": "#10294",
+      "customerName": "Pooja Tiwari",
+      "customerPhone": "+91 97112 55667",
+      "services": [
+        {
+          "id": "s3",
+          "name": "Passport Photos (8 Copies 35x45mm Glossy)",
+          "category": "PHOTO",
+          "unitPrice": 30,
+          "quantity": 1,
+          "total": 30
+        }
+      ],
+      "subtotal": 30,
+      "discount": 0,
+      "totalAmount": 30,
+      "paymentMode": "UPI_QR",
+      "paymentStatus": "PAID",
+      "status": "PRINTING",
+      "operator": "Vikas (Staff)",
+      "createdAt": "2026-10-04T11:30:00.000Z",
+      "hasTemporaryFiles": true
+    },
+    {
+      "id": "job-10295",
+      "jobCode": "#10295",
+      "customerName": "Walk-in Student",
+      "customerPhone": "",
+      "services": [
+        {
+          "id": "s4",
+          "name": "Admit Card B&W Single A4",
+          "category": "PRINT",
+          "unitPrice": 3,
+          "quantity": 3,
+          "total": 9
+        },
+        {
+          "id": "s5",
+          "name": "PDF Merge & 50KB SSC Compress",
+          "category": "DOC",
+          "unitPrice": 15,
+          "quantity": 1,
+          "total": 15
+        }
+      ],
+      "subtotal": 24,
+      "discount": 0,
+      "totalAmount": 24,
+      "paymentMode": "CASH",
+      "paymentStatus": "PAID",
+      "status": "READY",
+      "operator": "Rajesh (Owner)",
+      "createdAt": "2026-10-04T11:45:00.000Z",
+      "hasTemporaryFiles": true
+    },
+    {
+      "id": "job-10296",
+      "jobCode": "#10296",
+      "customerName": "Mohd. Salim",
+      "customerPhone": "+91 93361 77889",
+      "services": [
+        {
+          "id": "s6",
+          "name": "PAN Card Printout & Lamination",
+          "category": "PRINT",
+          "unitPrice": 30,
+          "quantity": 1,
+          "total": 30
+        }
+      ],
+      "subtotal": 30,
+      "discount": 0,
+      "totalAmount": 30,
+      "paymentMode": "UPI_QR",
+      "paymentStatus": "PENDING",
+      "status": "PROCESSING",
+      "operator": "Rajesh (Owner)",
+      "createdAt": "2026-10-04T12:05:00.000Z",
+      "hasTemporaryFiles": true
+    }
+  ],
+  "auditLogs": [
+    {
+      "id": "log-1791438741563",
+      "timestamp": "11:22 AM",
+      "staffName": "Rajesh Sharma",
+      "jobCode": "#10295",
+      "action": "Sale Recorded",
+      "details": "Sale #10295 for ₹40 (CASH)",
+      "privacySafe": true
+    },
+    {
+      "id": "log-1",
+      "timestamp": "10:25 AM",
+      "staffName": "Rajesh Sharma",
+      "jobCode": "#10293",
+      "action": "Automatic Privacy Purge",
+      "details": "Customer Aadhaar temporary memory buffer destroyed securely (Zero retention).",
+      "privacySafe": true
+    },
+    {
+      "id": "log-2",
+      "timestamp": "10:22 AM",
+      "staffName": "Rajesh Sharma",
+      "jobCode": "#10293",
+      "action": "Print Completed",
+      "details": "Aadhaar front-back A4 dispatched to HP LaserJet Pro M404n.",
+      "privacySafe": true
+    },
+    {
+      "id": "log-3",
+      "timestamp": "10:16 AM",
+      "staffName": "Rajesh Sharma",
+      "jobCode": "#10293",
+      "action": "Document Layout Engine",
+      "details": "Dual perspective crop and auto-deskew applied for Aadhaar card.",
+      "privacySafe": true
+    },
+    {
+      "id": "log-4",
+      "timestamp": "11:32 AM",
+      "staffName": "Vikas (Staff)",
+      "jobCode": "#10294",
+      "action": "Photo Studio 8-Up Generator",
+      "details": "Generated 35x45mm 8-photo grid on Kodak photo sheet with cut guides.",
+      "privacySafe": true
+    }
+  ]
+}

@@ -1,3 +1,13 @@
+export interface StaffMember {
+  id: string;
+  name: string;
+  role: string;
+  phone?: string;
+  status?: 'ACTIVE' | 'INACTIVE';
+  active?: boolean;
+  createdAt?: string;
+}
+
 export interface ShopSettings {
   shopName: string;
   tagline: string;
@@ -12,6 +22,7 @@ export interface ShopSettings {
   autoPurgeMinutes: number;
   currency: string;
   pricingMatrix: Record<string, number>;
+  staffMembers?: StaffMember[];
 }
 
 export interface Printer {
@@ -51,7 +62,7 @@ export interface PrintJobItem {
 export interface ServiceItem {
   id: string;
   name: string;
-  category: 'PRINT' | 'PHOTO' | 'DOC' | 'LAMINATION' | 'FORM';
+  category: 'PRINT' | 'PHOTO' | 'DOC' | 'LAMINATION' | 'FORM' | 'CUSTOM';
   unitPrice: number;
   quantity: number;
   total: number;
@@ -76,7 +87,7 @@ export interface Job {
   subtotal: number;
   discount: number;
   totalAmount: number;
-  paymentMode: 'UPI_QR' | 'CASH' | 'SPLIT';
+  paymentMode: 'UPI_QR' | 'CASH' | 'SPLIT' | 'PENDING';
   paymentStatus: 'PAID' | 'PENDING';
   status: 'NEW' | 'PROCESSING' | 'READY' | 'PRINTING' | 'COMPLETED' | 'CANCELLED';
   operator: string;

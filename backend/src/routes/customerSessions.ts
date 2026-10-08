@@ -37,7 +37,8 @@ router.post('/create', (req: Request, res: Response) => {
 
 // GET fetch session info (used by customer mobile page or operator poll)
 router.get('/:token', (req: Request, res: Response) => {
-  const session = store.sessions[req.params.token];
+  const token = String(req.params.token);
+  const session = store.sessions[token];
   if (!session) {
     return res.status(404).json({ success: false, message: 'Session expired or invalid QR' });
   }
@@ -53,7 +54,8 @@ router.get('/:token', (req: Request, res: Response) => {
 
 // POST upload files to session (from customer's mobile)
 router.post('/:token/upload', (req: Request, res: Response) => {
-  const session = store.sessions[req.params.token];
+  const token = String(req.params.token);
+  const session = store.sessions[token];
   if (!session) {
     return res.status(404).json({ success: false, message: 'Session not found' });
   }
@@ -87,9 +89,10 @@ router.post('/:token/upload', (req: Request, res: Response) => {
 
 // POST destroy session data (Operator manually purges or completes job)
 router.post('/:token/purge', (req: Request, res: Response) => {
-  if (store.sessions[req.params.token]) {
-    delete store.sessions[req.params.token];
-    store.addAudit('Privacy Engine', 'Session Purged', `Memory wiped for token ${req.params.token}`);
+  const token = String(req.params.token);
+  if (store.sessions[token]) {
+    delete store.sessions[token];
+    store.addAudit('Privacy Engine', 'Session Purged', `Memory wiped for token ${token}`);
   }
   res.json({ success: true, message: 'Session completely wiped.' });
 });

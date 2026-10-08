@@ -5,20 +5,24 @@ import {
   Smartphone, 
   CheckCircle2, 
   FileCheck, 
-  Clock, 
   ShieldCheck, 
   ExternalLink,
-  ArrowRight
+  ArrowRight,
+  Download,
+  Trash2
 } from 'lucide-react';
 import { api } from '../../services/api';
 import { CustomerUploadSession } from '../../types';
+import { Language, translations } from '../../utils/i18n';
 
 interface CustomerQrViewProps {
   onFilesReady: (files: any[]) => void;
+  language: Language;
 }
 
-export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) => {
+export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady, language }) => {
   const [session, setSession] = useState<CustomerUploadSession | null>(null);
+  const t = translations[language];
 
   useEffect(() => {
     initSession();
@@ -62,7 +66,7 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) 
     const mock = [
       {
         id: 'f1',
-        originalName: 'Customer_Aadhaar.jpg',
+        originalName: 'Customer_Aadhaar_Card.jpg',
         fileSize: 420 * 1024,
         mimeType: 'image/jpeg',
         category: 'AADHAAR_FRONT',
@@ -71,7 +75,7 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) 
       },
       {
         id: 'f2',
-        originalName: 'Customer_Photo.jpg',
+        originalName: 'Customer_Passport_Photo.jpg',
         fileSize: 210 * 1024,
         mimeType: 'image/jpeg',
         category: 'PHOTO',
@@ -97,72 +101,76 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) 
           </div>
           <div>
             <h2 className="text-lg font-extrabold text-[#071A52]">
-              कस्टमर QR काउंटर डिस्प्ले (Mobile Direct Upload)
+              {t.qrStandeeTitle}
             </h2>
             <p className="text-xs text-slate-500">
-              ग्राहक फोन से स्कैन करके सीधे फोटो या PDF भेजेगा — नो व्हाट्सएप, नो नंबर सेविंग!
+              {t.qrStandeeSub}
             </p>
           </div>
         </div>
 
         <button
           onClick={handleSimulate}
-          className="btn-orange px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto"
+          className="btn-orange px-3.5 py-2 text-xs font-bold flex items-center gap-1.5 self-start sm:self-auto shadow-sm"
         >
-          <span>⚡ टेस्ट फोन अपलोड (Demo)</span>
+          <span>⚡ {language === 'en' ? 'Test Upload (Demo)' : language === 'hinglish' ? 'Test Phone Upload' : 'टेस्ट फोन अपलोड'}</span>
         </button>
       </div>
 
       {/* Main QR Standee Display */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
         {/* QR Code Card */}
-        <div className="clean-card p-8 text-center flex flex-col items-center justify-center space-y-4 border-2 border-emerald-200">
+        <div className="clean-card p-8 text-center flex flex-col items-center justify-between space-y-4 border-2 border-emerald-200 bg-white">
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 font-mono font-bold text-xs">
-            <span>काउंटर टोकन: {session?.sessionToken || 'CS-XXXX'}</span>
+            <span>{language === 'en' ? 'Counter Token' : language === 'hinglish' ? 'Counter Token' : 'टोकन'}: {session?.sessionToken || 'CS-XXXX'}</span>
           </div>
 
           <div className="p-4 bg-white rounded-2xl shadow-md border-2 border-slate-200 flex items-center justify-center">
             {uploadUrl ? (
-              <QRCodeSVG value={uploadUrl} size={200} level="M" />
+              <QRCodeSVG value={uploadUrl} size={190} level="M" />
             ) : (
-              <div className="w-48 h-48 flex items-center justify-center text-slate-400">QR बन रहा है...</div>
+              <div className="w-48 h-48 flex items-center justify-center text-slate-400">Loading QR...</div>
             )}
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-1">
             <h3 className="font-extrabold text-base text-[#071A52]">
-              फोन कैमरे से स्कैन करें
+              {language === 'en' ? 'Scan with Mobile Camera' : language === 'hinglish' ? 'Phone Camera Se Scan Karein' : 'फोन कैमरे से स्कैन करें'}
             </h3>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs">
-              गैलरी से फोटो चुनें या कैमरे से नया फोटो खींचकर सीधे भेजें
+            <p className="text-xs text-slate-500 max-w-xs">
+              {language === 'en' ? 'Customer selects photos or PDFs and transmits directly to your counter.' : language === 'hinglish' ? 'Customer gallery se photo ya PDF chune aur sidhe bheje.' : 'ग्राहक गैलरी से फोटो या PDF चुनें और सीधे भेजें।'}
             </p>
           </div>
 
           <div className="pt-2 border-t border-slate-100 flex items-center gap-2 text-xs text-slate-500">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>सुरक्षित • प्रिंट होते ही फाइलें मिट जाती हैं</span>
+            <span>{t.privacyShield}</span>
           </div>
         </div>
 
         {/* Incoming Files Receiver */}
-        <div className="clean-card p-6 space-y-4 flex flex-col justify-between min-h-[360px]">
+        <div className="clean-card p-6 space-y-4 flex flex-col justify-between min-h-[360px] bg-white">
           <div>
             <div className="flex items-center justify-between pb-3 border-b border-slate-200">
               <span className="text-xs font-extrabold text-slate-700 uppercase tracking-wide">
-                काउंटर पर प्राप्त दस्तावेज ({session?.uploadedFiles.length || 0}):
+                {t.incomingFilesHeading} ({session?.uploadedFiles.length || 0}):
               </span>
               <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                 (session?.uploadedFiles.length || 0) > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
               }`}>
-                {(session?.uploadedFiles.length || 0) > 0 ? 'फाइलें मिलीं' : 'इंतजार में...'}
+                {(session?.uploadedFiles.length || 0) > 0 ? (language === 'en' ? 'Files Received' : 'फाइलें मिलीं') : (language === 'en' ? 'Waiting...' : 'इंतजार में...')}
               </span>
             </div>
 
             {(!session || session.uploadedFiles.length === 0) ? (
               <div className="py-16 text-center text-slate-400 space-y-2">
                 <Smartphone className="w-10 h-10 mx-auto text-slate-300 animate-pulse" />
-                <p className="text-xs font-bold text-slate-600">ग्राहक के स्कैन करने का इंतजार है</p>
-                <p className="text-[11px]">दुकान पर खड़े ग्राहक से कहें कि वह अपना कैमरा QR पर दिखाए।</p>
+                <p className="text-xs font-bold text-slate-600">
+                  {t.noFilesYet}
+                </p>
+                <p className="text-[11px] text-slate-400">
+                  {language === 'en' ? 'No WhatsApp or mobile number saving needed.' : 'व्हाट्सएप या नंबर सेव करने की कोई जरूरत नहीं।'}
+                </p>
               </div>
             ) : (
               <div className="space-y-2.5 mt-3 max-h-56 overflow-y-auto">
@@ -186,7 +194,7 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) 
               onClick={() => onFilesReady(session.uploadedFiles)}
               className="w-full btn-primary py-3 font-extrabold text-xs flex items-center justify-center gap-2 shadow-md animate-fadeIn"
             >
-              <span>ये दस्तावेज प्रिंट काउंटर में लोड करें</span>
+              <span>{t.openInAadhaar}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           )}
@@ -198,7 +206,7 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) 
               rel="noreferrer"
               className="text-xs font-bold text-[#155EEF] hover:underline inline-flex items-center gap-1"
             >
-              <span>ब्राउज़र में ग्राहक वाला मोबाइल पेज खोलकर देखें</span>
+              <span>{t.copyCustomerLink}</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           </div>
@@ -207,3 +215,4 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady }) 
     </div>
   );
 };
+
