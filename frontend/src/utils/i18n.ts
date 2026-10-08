@@ -11,6 +11,11 @@ export const translations = {
     help: 'Help & Guide',
     quickSaleBtn: '+ Log Sale',
     receiveFilesBtn: 'Receive Files',
+    privacyMaskOn: 'Customer Screen Privacy (Earnings Masked)',
+    privacyMaskOff: 'Earnings Revealed',
+    privacyMaskActive: 'Counter Privacy Mode',
+    switchOperatorBtn: 'Switch Operator / Logout',
+    counterJobsProcessed: 'Jobs Processed Today',
 
     // Navigation Tabs
     tabCounter: 'Dashboard',
@@ -291,6 +296,11 @@ export const translations = {
     help: 'Help & Guide',
     quickSaleBtn: '+ Bikri Likhein',
     receiveFilesBtn: 'File Mangayein',
+    privacyMaskOn: 'Parda Mode (Kamai Chhupi Hai)',
+    privacyMaskOff: 'Kamai Dikh Rahi Hai',
+    privacyMaskActive: 'Parda Mode Active',
+    switchOperatorBtn: 'Operator Badlein / Logout',
+    counterJobsProcessed: 'Aaj Kiye Gaye Kaam',
 
     // Navigation Tabs
     tabCounter: 'Dashboard',
@@ -568,6 +578,11 @@ export const translations = {
     help: 'सहायता व गाइड',
     quickSaleBtn: '+ बिक्री दर्ज करें',
     receiveFilesBtn: 'फ़ाइल मंगाएं',
+    privacyMaskOn: 'गोपनीयता पर्दा (कमाई ग्राहकों से छुपी)',
+    privacyMaskOff: 'कमाई प्रदर्शित',
+    privacyMaskActive: 'गोपनीय पर्दा सक्रिय',
+    switchOperatorBtn: 'ऑपरेटर बदलें / लॉगआउट',
+    counterJobsProcessed: 'आज पूरे किए गए कार्य',
 
     // Navigation Tabs
     tabCounter: 'डैशबोर्ड',

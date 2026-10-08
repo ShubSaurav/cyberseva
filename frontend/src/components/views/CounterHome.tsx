@@ -4,6 +4,7 @@ import {
   ArrowRight, 
   CheckCircle2, 
   Eye, 
+  EyeOff,
   Search, 
   Plus, 
   TrendingUp, 
@@ -19,8 +20,9 @@ import {
   ShieldCheck,
   Zap,
   Layers,
-  Sliders,
-  Maximize2
+  Lock,
+  Unlock,
+  Sliders
 } from 'lucide-react';
 import { Job, ShopSettings, StaffMember } from '../../types';
 import { Language, translations } from '../../utils/i18n';
@@ -34,8 +36,9 @@ interface CounterHomeProps {
   onViewReceipt: (job: Job) => void;
   onOpenQuickSale: (serviceName?: string) => void;
   onDeleteJob: (jobId: string) => void;
-  onInspectImage?: (imageUrl: string, title: string, subtitle?: string) => void;
   currentOperator?: StaffMember;
+  isPrivacyMasked: boolean;
+  onTogglePrivacyMask: () => void;
   language: Language;
 }
 
@@ -47,8 +50,9 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
   onViewReceipt,
   onOpenQuickSale,
   onDeleteJob,
-  onInspectImage,
   currentOperator,
+  isPrivacyMasked,
+  onTogglePrivacyMask,
   language
 }) => {
   const [quickInput, setQuickInput] = useState('');
@@ -56,21 +60,13 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<'all' | 'id' | 'photo' | 'govt'>('all');
   const t = translations[language];
 
-  const handleVoiceAssistantRun = (query?: string) => {
-    const q = query || quickInput;
-    if (q.trim()) {
-      onOpenCopilotWithQuery(q);
-      setQuickInput('');
-    }
-  };
-
   // Today's jobs only for sales calculations
   const todayDate = new Date().toISOString().split('T')[0];
   const todayJobs = useMemo(() => {
     return jobs.filter(j => j.createdAt && j.createdAt.split('T')[0] === todayDate);
   }, [jobs, todayDate]);
 
-  // Today's Totals
+  // Today's Totals (Kept confidential from walk-in customers)
   const todayMetrics = useMemo(() => {
     const total = todayJobs
       .filter(j => j.paymentStatus === 'PAID')
@@ -91,121 +87,107 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
     return { total, cash, upi, pending, count: todayJobs.length };
   }, [todayJobs]);
 
-  // All 10 Services (Strictly NO FIXED RATES / NO MRP)
+  // All 10 Services (Clicking directly opens that studio/tool; ZERO MRP displayed)
   const allServices = [
     {
       id: 'aadhaar',
-      tab: 'aadhaar',
+      action: () => onNavigate('aadhaar'),
       title: t.toolAadhaarTitle,
       description: t.toolAadhaarDesc,
       category: 'id',
       badge: t.toolAadhaarBadge,
       badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-      image: '/tools/aadhaar.jpg',
-      previewTitle: 'Aadhaar Smart Card Layout'
+      image: '/tools/aadhaar.jpg'
     },
     {
       id: 'pan',
-      tab: 'aadhaar',
+      action: () => onNavigate('aadhaar'),
       title: t.toolPanTitle,
       description: t.toolPanDesc,
       category: 'id',
       badge: t.toolPanBadge,
       badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-      image: '/tools/pan.jpg',
-      previewTitle: 'PAN Card PVC Layout'
+      image: '/tools/pan.jpg'
     },
     {
       id: 'passport',
-      tab: 'photo',
+      action: () => onNavigate('photo'),
       title: t.toolPassportTitle,
       description: t.toolPassportDesc,
       category: 'photo',
       badge: t.toolPassportBadge,
       badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
-      image: '/tools/passport.jpg',
-      previewTitle: '8/16 Photos Glossy Sheet'
+      image: '/tools/passport.jpg'
     },
     {
       id: 'voter',
-      tab: 'aadhaar',
+      action: () => onNavigate('aadhaar'),
       title: t.toolVoterTitle,
       description: t.toolVoterDesc,
       category: 'id',
       badge: t.toolVoterBadge,
       badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
-      image: '/tools/voter.jpg',
-      previewTitle: 'Voter ID (EPIC) Card'
+      image: '/tools/voter.jpg'
     },
     {
       id: 'ayushman',
-      tab: 'aadhaar',
+      action: () => onNavigate('aadhaar'),
       title: t.toolAyushmanTitle,
       description: t.toolAyushmanDesc,
       category: 'govt',
       badge: t.toolAyushmanBadge,
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      image: '/tools/ayushman.jpg',
-      previewTitle: 'Ayushman PM-JAY Golden Card'
+      image: '/tools/ayushman.jpg'
     },
     {
       id: 'admit',
-      tab: 'pdf',
+      action: () => onNavigate('pdf'),
       title: t.toolAdmitTitle,
       description: t.toolAdmitDesc,
       category: 'govt',
       badge: t.toolAdmitBadge,
       badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-      image: '/tools/admit_card.jpg',
-      previewTitle: 'Govt Exam Admit Card'
+      image: '/tools/admit_card.jpg'
     },
     {
       id: 'pdf',
-      tab: 'pdf',
+      action: () => onNavigate('pdf'),
       title: t.toolPdfTitle,
       description: t.toolPdfDesc,
       category: 'photo',
       badge: t.toolPdfBadge,
       badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
-      image: '/tools/pdf.svg',
-      previewTitle: 'PDF Tools & Govt 500KB Compressor'
+      image: '/tools/pdf.svg'
     },
     {
       id: 'qr',
-      tab: 'qr',
+      action: () => onNavigate('qr'),
       title: t.toolQrTitle,
       description: t.toolQrDesc,
       category: 'photo',
       badge: t.toolQrBadge,
       badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      image: '/tools/mobile_qr.jpg',
-      previewTitle: 'Customer Direct Mobile QR Transfer'
+      image: '/tools/mobile_qr.jpg'
     },
     {
       id: 'bill',
-      tab: 'counter',
-      isQuickSaleOnly: true,
-      serviceName: 'Electricity Bill Payment',
+      action: () => onOpenQuickSale('Electricity Bill Payment'),
       title: t.toolBillTitle,
       description: t.toolBillDesc,
       category: 'govt',
       badge: t.toolBillBadge,
       badgeColor: 'bg-orange-50 text-orange-700 border-orange-200',
-      image: '/tools/bill.svg',
-      previewTitle: 'Electricity & Utility Bill Receipt'
+      image: '/tools/bill.svg'
     },
     {
       id: 'xerox',
-      tab: 'counter',
-      isQuickSaleOnly: true,
-      serviceName: 'Xerox & Lamination',
+      action: () => onOpenQuickSale('Photocopy (Xerox) & Lamination'),
       title: t.toolXeroxTitle,
       description: t.toolXeroxDesc,
       category: 'photo',
       badge: t.toolXeroxBadge,
       badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
-      image: '/tools/xerox.svg',
-      previewTitle: 'Photocopy & Thermal Lamination'
+      image: '/tools/xerox.svg'
     }
   ];
 
@@ -220,16 +202,16 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
   }, [allServices, selectedCategory, searchQuery]);
 
   return (
-    <div className="space-y-7 pb-16 animate-fadeIn max-w-7xl mx-auto">
-      {/* 1. TOP HERO SECTION: Brand Greeting + Quick Action Strip + Hero Illustration */}
-      <section className="clean-card p-6 sm:p-8 bg-white relative overflow-hidden border border-slate-200/90 shadow-sm">
+    <div className="space-y-6 pb-16 animate-fadeIn max-w-7xl mx-auto">
+      {/* 1. TOP HERO WORKSPACE: Welcoming & Operational (Safe when customer is looking) */}
+      <section className="clean-card p-6 sm:p-7 bg-white relative overflow-hidden border border-slate-200/90 shadow-sm">
         {/* Subtle background glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/50 via-indigo-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100/40 via-indigo-50/20 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           {/* Left Hero Content (7 Cols) */}
           <div className="lg:col-span-7 space-y-4">
-            {/* Live Counter Badge */}
+            {/* Live Counter Badges */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-extrabold">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -243,7 +225,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
 
             {/* Main Greeting */}
             <div>
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#071A52] tracking-tight font-display leading-tight">
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-[#071A52] tracking-tight font-display leading-tight">
                 {language === 'en'
                   ? `Welcome, ${currentOperator ? currentOperator.name : settings.ownerName}! 👋`
                   : language === 'hinglish'
@@ -251,15 +233,19 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
                   : `नमस्ते ${currentOperator ? currentOperator.name : settings.ownerName} जी! 🙏`}
               </h1>
               <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
-                {t.subtitle}
+                {language === 'en'
+                  ? 'Select any counter service below to launch studio directly, or receive files from customer phone:'
+                  : language === 'hinglish'
+                  ? 'Niche se koi bhi counter service direct chalu karein, ya customer ke phone se file mangayein:'
+                  : 'नीचे से कोई भी सेवा सीधे शुरू करें, या ग्राहक के फोन से फाइल प्राप्त करें:'}
               </p>
             </div>
 
-            {/* Quick Action Buttons (Big & Tactile) */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            {/* Quick Action Buttons */}
+            <div className="flex flex-wrap items-center gap-3 pt-1">
               <button
                 onClick={() => onOpenQuickSale()}
-                className="btn-green px-5 py-3 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-emerald-500/20 active:scale-95 transition-all"
+                className="btn-green px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-emerald-500/20 active:scale-95 transition-all"
               >
                 <Plus className="w-4 h-4" />
                 <span>{t.quickSaleBtn}</span>
@@ -267,141 +253,140 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
 
               <button
                 onClick={() => onNavigate('qr')}
-                className="btn-primary px-5 py-3 rounded-2xl font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+                className="btn-primary px-5 py-2.5 rounded-xl font-extrabold text-xs sm:text-sm flex items-center gap-2 shadow-md shadow-blue-500/20 active:scale-95 transition-all"
               >
                 <QrCode className="w-4 h-4" />
                 <span>{t.receiveFilesBtn}</span>
               </button>
 
+              {/* Discreet Counter Screen Privacy Toggle */}
               <button
-                onClick={() => onOpenCopilotWithQuery('Help with Aadhaar front back layout')}
-                className="px-4 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-xs flex items-center gap-1.5 border border-slate-200 transition-colors"
+                onClick={onTogglePrivacyMask}
+                className={`px-3.5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 border transition-all ${
+                  isPrivacyMasked 
+                    ? 'bg-amber-50 text-amber-800 border-amber-200' 
+                    : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'
+                }`}
+                title={isPrivacyMasked ? t.privacyMaskOff : t.privacyMaskOn}
               >
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>AI Copilot</span>
+                {isPrivacyMasked ? (
+                  <>
+                    <EyeOff className="w-3.5 h-3.5 text-amber-700" />
+                    <span>{t.privacyMaskActive}</span>
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-3.5 h-3.5 text-slate-600" />
+                    <span>{t.privacyMaskOn}</span>
+                  </>
+                )}
               </button>
-            </div>
-
-            {/* Notice: No fixed MRP */}
-            <div className="p-3 bg-amber-50/70 border border-amber-200/80 rounded-2xl text-[11px] text-amber-900 flex items-center gap-2">
-              <span className="text-sm">💡</span>
-              <span className="font-semibold">{t.noFixedRateNotice}</span>
             </div>
           </div>
 
           {/* Right Hero Illustration (5 Cols) */}
           <div className="lg:col-span-5 flex justify-center lg:justify-end">
-            <div className="w-full max-w-md drop-shadow-xl hover:scale-[1.02] transition-transform duration-300">
+            <div className="w-full max-w-sm drop-shadow-md">
               <CounterHeroIllustration />
             </div>
           </div>
         </div>
       </section>
 
-      {/* 2. TODAY'S SALES & CASHFLOW BENTO TILES (Real-time Financial Snapshot) */}
-      <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-emerald-600" />
-            <h2 className="text-base sm:text-lg font-extrabold text-[#071A52] font-display">
-              {t.todaySalesHeading}
-            </h2>
+      {/* 2. OPERATIONAL SNAPSHOT TILES (Customer-Safe: NO sensitive financial numbers visible) */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Tile 1: Today's Orders / Services Processed (Safe to show) */}
+        <div className="clean-card p-4 bg-white border border-slate-200 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+              {t.counterJobsProcessed}
+            </span>
+            <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
           </div>
-          <button
-            onClick={() => onNavigate('sales')}
-            className="text-xs font-extrabold text-blue-600 hover:text-blue-700 hover:underline flex items-center gap-1"
-          >
-            <span>{t.viewDetailedReport}</span>
-          </button>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-[#071A52] font-display">
+              {todayMetrics.count}
+            </span>
+            <span className="text-xs text-slate-500 font-medium">{language === 'en' ? 'Completed' : 'सफल'}</span>
+          </div>
+          <div className="mt-1 text-[11px] text-emerald-600 font-semibold">
+            ● Counter Shift Active
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Card 1: Total Today Income */}
-          <div className="clean-card p-5 bg-gradient-to-br from-white to-emerald-50/40 border-2 border-emerald-200/80 hover:shadow-md transition-all">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                {t.todayTotal}
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                ₹
-              </div>
-            </div>
-            <div className="mt-2 flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-[#071A52] font-display tracking-tight">
-                ₹{todayMetrics.total.toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="mt-2 text-[11px] font-bold text-emerald-700 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>{todayMetrics.count} {language === 'en' ? 'Completed Orders' : 'सेवाएं पूरी'}</span>
+        {/* Tile 2: Laser Printer Spooler Status */}
+        <div className="clean-card p-4 bg-white border border-slate-200 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+              Laser Printer
+            </span>
+            <div className="w-7 h-7 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
+              <Printer className="w-4 h-4" />
             </div>
           </div>
+          <div className="mt-1">
+            <span className="text-base font-extrabold text-slate-900 font-display">
+              HP LaserJet M404n
+            </span>
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500 flex justify-between">
+            <span>Toner: <strong>84%</strong></span>
+            <span>Tray: <strong>180 A4</strong></span>
+          </div>
+        </div>
 
-          {/* Card 2: Cash in Hand */}
-          <div className="clean-card p-5 hover:shadow-md transition-all bg-white border border-slate-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                {t.cashCollected}
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                <Banknote className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display tracking-tight">
-                ₹{todayMetrics.cash.toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="mt-2 text-[11px] font-medium text-slate-500">
-              {language === 'en' ? 'Physical counter cash' : 'काउंटर गल्ला कैश'}
+        {/* Tile 3: Color Photo Ink Tank Status */}
+        <div className="clean-card p-4 bg-white border border-slate-200 hover:shadow-sm transition-all">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+              Color Photo Desk
+            </span>
+            <div className="w-7 h-7 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+              <Zap className="w-4 h-4" />
             </div>
           </div>
+          <div className="mt-1">
+            <span className="text-base font-extrabold text-slate-900 font-display">
+              Canon G3010 Ink Tank
+            </span>
+          </div>
+          <div className="mt-1 text-[11px] text-slate-500">
+            CMYK Ink: <strong className="text-blue-600">85%+ Ready</strong>
+          </div>
+        </div>
 
-          {/* Card 3: UPI / QR Received */}
-          <div className="clean-card p-5 hover:shadow-md transition-all bg-white border border-slate-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                {t.upiReceived}
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-                <CreditCard className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-blue-700 font-display tracking-tight">
-                ₹{todayMetrics.upi.toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="mt-2 text-[11px] font-medium text-slate-500">
-              {language === 'en' ? 'Online QR / Bank' : 'सीधे बैंक / UPI'}
+        {/* Tile 4: Discreet Revenue Pill (CONFIDENTIAL: Masked by default for customer privacy) */}
+        <div 
+          onClick={onTogglePrivacyMask}
+          className={`clean-card p-4 border transition-all cursor-pointer ${
+            isPrivacyMasked 
+              ? 'bg-slate-50/80 border-slate-200 hover:bg-slate-100' 
+              : 'bg-emerald-50/60 border-emerald-200'
+          }`}
+          title="Click to toggle customer privacy mask"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
+              {language === 'en' ? 'Confidential Sales' : 'काउंटर बिक्री'}
+            </span>
+            <div className="w-7 h-7 rounded-xl bg-slate-200/80 text-slate-700 flex items-center justify-center">
+              {isPrivacyMasked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5 text-emerald-700" />}
             </div>
           </div>
-
-          {/* Card 4: Pending / Due (Udhar) */}
-          <div className="clean-card p-5 hover:shadow-md transition-all bg-white border border-slate-200">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                {t.pendingUdhar}
-              </span>
-              <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
-                <Clock className="w-4 h-4" />
-              </div>
-            </div>
-            <div className="mt-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-amber-600 font-display tracking-tight">
-                ₹{todayMetrics.pending.toLocaleString('en-IN')}
-              </span>
-            </div>
-            <div className="mt-2 text-[11px] font-medium text-amber-700">
-              {todayMetrics.pending > 0 
-                ? (language === 'en' ? 'Pending settlement' : 'लेना बाकी है') 
-                : (language === 'en' ? 'All dues cleared' : 'सब चुकता')}
-            </div>
+          <div className="mt-1 flex items-baseline gap-2">
+            <span className="text-2xl font-extrabold text-[#071A52] font-display">
+              {isPrivacyMasked ? '₹ ••••' : `₹${todayMetrics.total.toLocaleString('en-IN')}`}
+            </span>
+          </div>
+          <div className="mt-1 text-[11px] text-blue-600 font-bold hover:underline">
+            {language === 'en' ? 'Open Full Khata Ledger ➔' : 'विस्तृत खाता देखें ➔'}
           </div>
         </div>
       </section>
 
-      {/* 3. ALL COUNTER TOOLS SECTION: Clean Bento Grid with Real Imagery (NO FIXED MRP) */}
+      {/* 3. ALL 10 COUNTER SERVICES: 1-Click Launch (NO FIXED MRP / NO INSPECT OVERLAY) */}
       <section className="space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
@@ -414,7 +399,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
             </p>
           </div>
 
-          {/* Search & Category Filter Pills */}
+          {/* Search & Category Filter */}
           <div className="flex flex-wrap items-center gap-2">
             <div className="relative">
               <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -464,39 +449,22 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
           </div>
         </div>
 
-        {/* 10 Services Grid */}
+        {/* 10 Services Grid (Direct 1-Click Launch) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           {filteredServices.map((service) => (
             <div
               key={service.id}
-              className="clean-card clean-card-hover p-4 flex flex-col justify-between group bg-white border border-slate-200/90 relative overflow-hidden"
+              onClick={service.action}
+              className="clean-card clean-card-hover p-4 flex flex-col justify-between group bg-white border border-slate-200/90 cursor-pointer transition-all hover:border-blue-300 active:scale-[0.99]"
             >
               <div>
-                {/* Visual Image Thumbnail Container */}
-                <div 
-                  className="w-full h-32 rounded-xl bg-slate-100 overflow-hidden relative mb-3 border border-slate-100 flex items-center justify-center cursor-pointer group-hover:border-blue-200 transition-colors"
-                  onClick={() => {
-                    if (onInspectImage && service.image) {
-                      onInspectImage(service.image, service.title, service.previewTitle);
-                    } else if (service.isQuickSaleOnly) {
-                      onOpenQuickSale(service.serviceName);
-                    } else {
-                      onNavigate(service.tab);
-                    }
-                  }}
-                >
+                {/* Visual Image Thumbnail */}
+                <div className="w-full h-32 rounded-xl bg-slate-100 overflow-hidden relative mb-3 border border-slate-100 flex items-center justify-center">
                   <img
                     src={service.image}
                     alt={service.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  {/* Hover Inspect Icon */}
-                  <div className="absolute inset-0 bg-slate-950/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                    <span className="p-2 rounded-xl bg-white/90 text-slate-800 text-xs font-extrabold shadow-md flex items-center gap-1">
-                      <Maximize2 className="w-3.5 h-3.5" />
-                      <span>{language === 'en' ? 'Inspect' : 'देखें'}</span>
-                    </span>
-                  </div>
                 </div>
 
                 {/* Badge Tag (Operational only, ZERO MRP) */}
@@ -515,23 +483,26 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
                 </p>
               </div>
 
-              {/* Bottom Actions: Start Service & Quick Log */}
+              {/* Action Buttons: Direct 1-Click Start */}
               <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-1.5">
                 <button
-                  onClick={() => {
-                    if (service.isQuickSaleOnly) {
-                      onOpenQuickSale(service.serviceName);
-                    } else {
-                      onNavigate(service.tab);
-                    }
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    service.action();
                   }}
-                  className="flex-1 py-1.5 px-2 rounded-xl bg-slate-50 hover:bg-blue-50 text-blue-700 font-extrabold text-[11px] flex items-center justify-center gap-1 transition-colors border border-slate-200 group-hover:border-blue-300"
+                  className="flex-1 py-1.5 px-2 rounded-xl bg-blue-50 group-hover:bg-blue-600 group-hover:text-white text-blue-700 font-extrabold text-[11px] flex items-center justify-center gap-1 transition-colors"
                 >
                   <span>{t.startServiceBtn}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </button>
 
                 <button
-                  onClick={() => onOpenQuickSale(service.title)}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenQuickSale(service.title);
+                  }}
                   className="p-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-[11px] transition-colors border border-emerald-200"
                   title="Quick Log Sale"
                 >
@@ -543,9 +514,9 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
         </div>
       </section>
 
-      {/* 4. BOTTOM SPLIT: Live Sales Ledger (8 Cols) + Printer & Desk Hub (4 Cols) */}
+      {/* 4. BOTTOM SPLIT: Customer Safe Activity Feed (8 Cols) + Mobile Drop Station (4 Cols) */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        {/* Left Column: Live Sales Ledger (8 Cols) */}
+        {/* Left Column: Activity Feed with Privacy Masking (8 Cols) */}
         <div className="lg:col-span-8 clean-card p-5 bg-white border border-slate-200 space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
             <div>
@@ -554,22 +525,35 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
                 <span>{t.recentActivityHeading}</span>
               </h3>
               <p className="text-[11px] text-slate-500">
-                {t.recentActivitySub}
+                {language === 'en'
+                  ? 'Real-time record of all counter print and processing jobs today'
+                  : 'आज काउंटर पर पूरे किए गए प्रिंट और सेवा रिकॉर्ड'}
               </p>
             </div>
 
-            <button
-              onClick={() => onOpenQuickSale()}
-              className="btn-green px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1 self-start sm:self-auto shadow-xs"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>{t.quickSaleBtn}</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={onTogglePrivacyMask}
+                className="p-1.5 rounded-lg border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs flex items-center gap-1"
+                title={isPrivacyMasked ? t.privacyMaskOff : t.privacyMaskOn}
+              >
+                {isPrivacyMasked ? <EyeOff className="w-3.5 h-3.5 text-amber-600" /> : <Eye className="w-3.5 h-3.5" />}
+                <span className="text-[11px] font-bold">{isPrivacyMasked ? 'Masked' : 'Visible'}</span>
+              </button>
+
+              <button
+                onClick={() => onOpenQuickSale()}
+                className="btn-green px-3.5 py-1.5 text-xs font-extrabold flex items-center gap-1 shadow-xs"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{t.quickSaleBtn}</span>
+              </button>
+            </div>
           </div>
 
           {/* Table */}
           {todayJobs.length === 0 ? (
-            <div className="py-10 text-center space-y-3">
+            <div className="py-8 text-center space-y-3">
               <EmptyKhataIllustration />
               <p className="text-xs font-bold text-slate-600">
                 {t.noSalesToday}
@@ -613,7 +597,7 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
                           {job.services.map(s => `${s.name} (x${s.quantity})`).join(', ')}
                         </td>
                         <td className="py-3 px-3 font-extrabold text-[#071A52] font-display text-sm">
-                          ₹{job.totalAmount}
+                          {isPrivacyMasked ? '₹ ••••' : `₹${job.totalAmount}`}
                         </td>
                         <td className="py-3 px-3">
                           <span className={`inline-flex items-center gap-1 text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
@@ -656,67 +640,19 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
           )}
         </div>
 
-        {/* Right Column: Printer Hardware & Quick Hub (4 Cols) */}
+        {/* Right Column: Customer Mobile Drop Station & Privacy Assurance (4 Cols) */}
         <div className="lg:col-span-4 space-y-4">
-          {/* Printer Live Spooler Status */}
-          <div className="clean-card p-5 bg-white border border-slate-200 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-              <span className="text-xs font-extrabold text-[#071A52] flex items-center gap-1.5">
-                <Printer className="w-4 h-4 text-blue-600" />
-                <span>Counter Printers (Live)</span>
-              </span>
-              <span className="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Spooler Online
-              </span>
-            </div>
-
-            {/* HP LaserJet Status */}
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                <span>HP LaserJet Pro M404n</span>
-                <span className="text-emerald-700 font-extrabold">Ready</span>
-              </div>
-              <div className="space-y-1">
-                <div className="flex justify-between text-[10px] text-slate-500 font-medium">
-                  <span>Black Toner:</span>
-                  <span className="font-bold text-slate-800">84%</span>
-                </div>
-                <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                  <div className="bg-slate-800 h-full rounded-full" style={{ width: '84%' }} />
-                </div>
-              </div>
-              <div className="flex justify-between text-[10px] text-slate-500">
-                <span>A4 Paper Tray: 180 sheets</span>
-                <span>Fast B&W Desk</span>
-              </div>
-            </div>
-
-            {/* Canon Color Ink Tank Status */}
-            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                <span>Canon PIXMA G3010 Ink Tank</span>
-                <span className="text-blue-700 font-extrabold">WiFi Active</span>
-              </div>
-              <div className="grid grid-cols-4 gap-1 text-center">
-                <div className="p-1 rounded bg-slate-800 text-white text-[9px] font-bold">BK 92%</div>
-                <div className="p-1 rounded bg-cyan-500 text-white text-[9px] font-bold">C 88%</div>
-                <div className="p-1 rounded bg-fuchsia-500 text-white text-[9px] font-bold">M 82%</div>
-                <div className="p-1 rounded bg-yellow-400 text-slate-900 text-[9px] font-bold">Y 85%</div>
-              </div>
-            </div>
-          </div>
-
           {/* Quick File Transfer Desk Standee Card */}
           <div className="clean-card p-5 bg-gradient-to-br from-emerald-500/10 via-white to-blue-500/10 border border-emerald-200 space-y-3">
             <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+              <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
                 <QrCode className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="font-extrabold text-xs text-[#071A52]">
-                  {language === 'en' ? 'Direct Mobile File Drop' : 'मोबाइल फाइल ड्रॉप'}
+                <h4 className="font-extrabold text-sm text-[#071A52]">
+                  {language === 'en' ? 'Direct Mobile File Drop' : 'मोबाइल फाइल ट्रांसफर'}
                 </h4>
-                <p className="text-[10px] text-slate-500">
+                <p className="text-[11px] text-slate-500">
                   {language === 'en' ? 'Customer scans & sends without WhatsApp' : 'बिना व्हाट्सएप कस्टमर से सीधे फाइल लें'}
                 </p>
               </div>
@@ -728,6 +664,19 @@ export const CounterHome: React.FC<CounterHomeProps> = ({
             >
               <span>{language === 'en' ? 'Open Customer QR Standee ➔' : 'कस्टमर QR स्टैंडी खोलें ➔'}</span>
             </button>
+          </div>
+
+          {/* Privacy & Zero Cloud Retention Card */}
+          <div className="clean-card p-4 bg-slate-50 border border-slate-200 space-y-2 text-xs">
+            <div className="flex items-center gap-2 font-extrabold text-slate-800">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>{t.privacyShield}</span>
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed">
+              {language === 'en'
+                ? 'All Aadhaar cards, photos, and certificates are processed strictly in browser memory. No permanent cloud storage.'
+                : 'सभी दस्तावेज केवल अस्थायी रैम मेमोरी में प्रोसेस होते हैं और प्रिंट होते ही मिटा दिए जाते हैं।'}
+            </p>
           </div>
         </div>
       </section>

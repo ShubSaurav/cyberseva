@@ -176,6 +176,19 @@ export function App() {
     });
   };
 
+  // Customer Screen Privacy Mask (Hides cash/earnings from walk-in customers looking at screen)
+  const [isPrivacyMasked, setIsPrivacyMasked] = useState<boolean>(() => {
+    return localStorage.getItem('cyberseva_privacy_masked') !== 'false';
+  });
+
+  const handleTogglePrivacyMask = () => {
+    setIsPrivacyMasked(prev => {
+      const next = !prev;
+      localStorage.setItem('cyberseva_privacy_masked', String(next));
+      return next;
+    });
+  };
+
   const handleLogout = () => {
     setIsLoggedIn(false);
     localStorage.setItem('cyberseva_logged_in', 'false');
@@ -414,6 +427,8 @@ export function App() {
         setFontSize={handleSetFontSize}
         currentOperator={currentOperator}
         onLogout={handleLogout}
+        isPrivacyMasked={isPrivacyMasked}
+        onTogglePrivacyMask={handleTogglePrivacyMask}
       />
 
       {/* Main Clean Workspace */}
@@ -430,8 +445,9 @@ export function App() {
             onViewReceipt={(j) => setSelectedReceiptJob(j)}
             onOpenQuickSale={handleOpenQuickSale}
             onDeleteJob={handleDeleteJob}
-            onInspectImage={handleInspectImage}
             currentOperator={currentOperator}
+            isPrivacyMasked={isPrivacyMasked}
+            onTogglePrivacyMask={handleTogglePrivacyMask}
             language={language}
           />
         )}

@@ -13,7 +13,9 @@ import {
   QrCode,
   Plus,
   LogOut,
-  UserCheck
+  UserCheck,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 import { ShopSettings, Printer as PrinterType, StaffMember } from '../../types';
 import { Language, FontSize, translations } from '../../utils/i18n';
@@ -33,6 +35,8 @@ interface HeaderProps {
   setFontSize: (size: FontSize) => void;
   currentOperator?: StaffMember;
   onLogout?: () => void;
+  isPrivacyMasked: boolean;
+  onTogglePrivacyMask: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -49,7 +53,9 @@ export const Header: React.FC<HeaderProps> = ({
   fontSize,
   setFontSize,
   currentOperator,
-  onLogout
+  onLogout,
+  isPrivacyMasked,
+  onTogglePrivacyMask
 }) => {
   const t = translations[language];
 
@@ -67,16 +73,16 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm no-print">
       {/* Top Bar: Brand, Shop, Font Controls, Language Switcher, Quick Sale, Cash, Copilot */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-3">
-        {/* Brand & Shop Title */}
-        <div className="flex items-center gap-3 cursor-pointer" onClick={() => setActiveTab('counter')}>
+        {/* Brand & Shop Title (PROMINENT & CRISP) */}
+        <div className="flex items-center gap-3.5 cursor-pointer group" onClick={() => setActiveTab('counter')}>
           <img
             src="/cybersevalogo2.png"
             alt="CyberSeva"
-            className="h-9 sm:h-10 w-auto object-contain"
+            className="h-11 sm:h-12 w-auto object-contain transition-transform group-hover:scale-105 drop-shadow-xs"
           />
-          <div className="hidden sm:block border-l border-slate-200 pl-3">
+          <div className="hidden sm:block border-l-2 border-slate-200 pl-3.5">
             <div className="flex items-center gap-2">
-              <span className="font-extrabold text-sm text-[#071A52] tracking-tight">
+              <span className="font-extrabold text-sm sm:text-base text-[#071A52] tracking-tight font-display">
                 {settings.shopName}
               </span>
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
@@ -169,15 +175,28 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline">{t.help}</span>
           </button>
 
-          {/* Today's Sales Badge */}
+          {/* Today's Sales Badge with Counter Privacy Mask Toggle */}
           <div 
-            onClick={() => setActiveTab('sales')}
-            className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 cursor-pointer hover:bg-emerald-100 transition-colors"
+            onClick={onTogglePrivacyMask}
+            className={`hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs cursor-pointer transition-all ${
+              isPrivacyMasked 
+                ? 'bg-slate-100 border-slate-300 text-slate-700 hover:bg-slate-200' 
+                : 'bg-emerald-50 border-emerald-200 text-emerald-900 hover:bg-emerald-100'
+            }`}
+            title={isPrivacyMasked ? t.privacyMaskOff : t.privacyMaskOn}
           >
-            <IndianRupee className="w-4 h-4 text-emerald-600" />
+            {isPrivacyMasked ? (
+              <EyeOff className="w-4 h-4 text-slate-500" />
+            ) : (
+              <Eye className="w-4 h-4 text-emerald-600" />
+            )}
             <div>
-              <span className="text-[9px] uppercase font-bold text-emerald-700 block leading-none">{t.todayEarnings}</span>
-              <span className="font-extrabold text-xs text-emerald-800">₹{todayRevenue.toLocaleString('en-IN')}</span>
+              <span className="text-[9px] uppercase font-bold text-slate-500 block leading-none">
+                {isPrivacyMasked ? t.privacyMaskActive : t.todayEarnings}
+              </span>
+              <span className="font-extrabold text-xs">
+                {isPrivacyMasked ? '₹ ••••' : `₹${todayRevenue.toLocaleString('en-IN')}`}
+              </span>
             </div>
           </div>
 
@@ -190,11 +209,11 @@ export const Header: React.FC<HeaderProps> = ({
             <span className="hidden sm:inline">{t.aiAssistant}</span>
           </button>
 
-          {/* Current Operator Profile & Logout Button */}
+          {/* Current Operator Profile & Clear Exit Button */}
           {currentOperator && (
-            <div className="flex items-center gap-1.5 pl-1 border-l border-slate-200">
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
               <div 
-                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-xs cursor-pointer hover:bg-slate-200 transition-colors"
+                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-xs"
                 title={`Active Counter Operator: ${currentOperator.name}`}
               >
                 <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-extrabold text-[11px]">
@@ -213,10 +232,11 @@ export const Header: React.FC<HeaderProps> = ({
               {onLogout && (
                 <button
                   onClick={onLogout}
-                  className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all"
-                  title={language === 'en' ? 'Switch Operator / Logout' : 'ऑपरेटर बदलें / लॉगआउट'}
+                  className="px-2.5 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-extrabold text-xs flex items-center gap-1 border border-rose-200 transition-all shadow-xs"
+                  title={t.switchOperatorBtn}
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">{language === 'en' ? 'Exit' : 'लॉगआउट'}</span>
                 </button>
               )}
             </div>
