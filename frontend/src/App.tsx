@@ -9,15 +9,17 @@ import { SalesKhataView } from './components/views/SalesKhataView';
 import { SettingsStaffView } from './components/views/SettingsStaffView';
 import { HistoryView } from './components/views/HistoryView';
 import { CustomerUploadView } from './components/views/CustomerUploadView';
+import { LoginView } from './components/views/LoginView';
 
 import { SimplePrintModal } from './components/common/SimplePrintModal';
 import { SimpleReceiptModal } from './components/common/SimpleReceiptModal';
 import { SimpleCopilotModal } from './components/common/SimpleCopilotModal';
 import { QuickSaleModal } from './components/common/QuickSaleModal';
 import { HelpModal } from './components/common/HelpModal';
+import { ImageViewModal } from './components/common/ImageViewModal';
 
 import { api } from './services/api';
-import { ShopSettings, Printer, Job, CopilotActionPlan } from './types';
+import { ShopSettings, Printer, Job, CopilotActionPlan, StaffMember } from './types';
 import { Language, FontSize } from './utils/i18n';
 
 export function App() {
@@ -143,6 +145,42 @@ export function App() {
   const [isQuickSaleOpen, setIsQuickSaleOpen] = useState(false);
   const [quickSaleInitialService, setQuickSaleInitialService] = useState<string | undefined>(undefined);
 
+  // Operator Login Session State
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(() => {
+    return localStorage.getItem('cyberseva_logged_in') !== 'false';
+  });
+  const [currentOperator, setCurrentOperator] = useState<StaffMember>({
+    id: 'staff-1',
+    name: 'Rajesh Sharma',
+    role: 'Owner / Manager',
+    status: 'ACTIVE'
+  });
+
+  // Image Inspector Modal State
+  const [inspectImageState, setInspectImageState] = useState<{
+    isOpen: boolean;
+    imageUrl?: string;
+    title: string;
+    subtitle?: string;
+  }>({
+    isOpen: false,
+    title: ''
+  });
+
+  const handleInspectImage = (imageUrl: string, title: string, subtitle?: string) => {
+    setInspectImageState({
+      isOpen: true,
+      imageUrl,
+      title,
+      subtitle
+    });
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.setItem('cyberseva_logged_in', 'false');
+  };
+
   useEffect(() => {
     loadLiveStore();
   }, []);
@@ -227,6 +265,23 @@ export function App() {
   // If customer is opening on phone from counter QR code
   if (isCustomerUploadMode) {
     return <CustomerUploadView token={customerSessionToken} />;
+  }
+
+  // If counter operator is not logged in, display the modern Login View
+  if (!isLoggedIn) {
+    return (
+      <LoginView
+        settings={settings}
+        staffMembers={settings.staffMembers && settings.staffMembers.length > 0 ? settings.staffMembers : [currentOperator]}
+        onLoginSuccess={(op) => {
+          setCurrentOperator(op);
+          setIsLoggedIn(true);
+          localStorage.setItem('cyberseva_logged_in', 'true');
+        }}
+        language={language}
+        onSetLanguage={handleSetLanguage}
+      />
+    );
   }
 
   // Keyboard shortcuts (Ctrl+P for print, Ctrl+N for counter home, Esc to close modals)
@@ -357,6 +412,8 @@ export function App() {
         setLanguage={handleSetLanguage}
         fontSize={fontSize}
         setFontSize={handleSetFontSize}
+        currentOperator={currentOperator}
+        onLogout={handleLogout}
       />
 
       {/* Main Clean Workspace */}
@@ -373,6 +430,8 @@ export function App() {
             onViewReceipt={(j) => setSelectedReceiptJob(j)}
             onOpenQuickSale={handleOpenQuickSale}
             onDeleteJob={handleDeleteJob}
+            onInspectImage={handleInspectImage}
+            currentOperator={currentOperator}
             language={language}
           />
         )}
@@ -479,6 +538,21 @@ export function App() {
         isOpen={isHelpOpen}
         onClose={() => setIsHelpOpen(false)}
         lang={language}
+      />
+
+      {/* High-Resolution Document & Image Lightbox Modal */}
+      <ImageViewModal
+        isOpen={inspectImageState.isOpen}
+        onClose={() => setInspectImageState(prev => ({ ...prev, isOpen: false }))}
+        imageUrl={inspectImageState.imageUrl}
+        title={inspectImageState.title}
+        subtitle={inspectImageState.subtitle}
+        onPrint={() => {
+          if (inspectImageState.imageUrl) {
+            handleOpenPrint(inspectImageState.imageUrl, `${inspectImageState.title}.jpg`);
+          }
+        }}
+        language={language}
       />
     </div>
   );

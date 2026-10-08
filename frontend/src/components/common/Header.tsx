@@ -11,9 +11,11 @@ import {
   TrendingUp,
   Settings,
   QrCode,
-  Plus
+  Plus,
+  LogOut,
+  UserCheck
 } from 'lucide-react';
-import { ShopSettings, Printer as PrinterType } from '../../types';
+import { ShopSettings, Printer as PrinterType, StaffMember } from '../../types';
 import { Language, FontSize, translations } from '../../utils/i18n';
 
 interface HeaderProps {
@@ -29,6 +31,8 @@ interface HeaderProps {
   setLanguage: (lang: Language) => void;
   fontSize: FontSize;
   setFontSize: (size: FontSize) => void;
+  currentOperator?: StaffMember;
+  onLogout?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -43,7 +47,9 @@ export const Header: React.FC<HeaderProps> = ({
   language,
   setLanguage,
   fontSize,
-  setFontSize
+  setFontSize,
+  currentOperator,
+  onLogout
 }) => {
   const t = translations[language];
 
@@ -178,11 +184,43 @@ export const Header: React.FC<HeaderProps> = ({
           {/* AI Copilot Button */}
           <button
             onClick={onOpenCopilot}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-[#155EEF] to-[#00AEEF] text-white font-extrabold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#155EEF] to-[#00AEEF] text-white font-extrabold text-xs shadow-md shadow-blue-500/20 hover:opacity-95 transition-all active:scale-95"
           >
-            <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
-            <span>{t.aiAssistant}</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+            <span className="hidden sm:inline">{t.aiAssistant}</span>
           </button>
+
+          {/* Current Operator Profile & Logout Button */}
+          {currentOperator && (
+            <div className="flex items-center gap-1.5 pl-1 border-l border-slate-200">
+              <div 
+                className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 text-xs cursor-pointer hover:bg-slate-200 transition-colors"
+                title={`Active Counter Operator: ${currentOperator.name}`}
+              >
+                <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-extrabold text-[11px]">
+                  {currentOperator.name.charAt(0)}
+                </div>
+                <div className="hidden xl:block text-left">
+                  <div className="text-[11px] font-extrabold text-slate-800 leading-tight truncate max-w-[100px]">
+                    {currentOperator.name}
+                  </div>
+                  <div className="text-[9px] text-slate-500 leading-none">
+                    {currentOperator.role || 'Operator'}
+                  </div>
+                </div>
+              </div>
+
+              {onLogout && (
+                <button
+                  onClick={onLogout}
+                  className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-all"
+                  title={language === 'en' ? 'Switch Operator / Logout' : 'ऑपरेटर बदलें / लॉगआउट'}
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

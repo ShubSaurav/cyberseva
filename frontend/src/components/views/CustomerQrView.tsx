@@ -163,26 +163,54 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady, la
             </div>
 
             {(!session || session.uploadedFiles.length === 0) ? (
-              <div className="py-16 text-center text-slate-400 space-y-2">
-                <Smartphone className="w-10 h-10 mx-auto text-slate-300 animate-pulse" />
-                <p className="text-xs font-bold text-slate-600">
+              <div className="py-10 text-center text-slate-400 space-y-3">
+                <div className="flex justify-center">
+                  <div className="w-36 h-36">
+                    <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
+                      <circle cx="100" cy="100" r="75" fill="#EFF6FF" />
+                      <rect x="70" y="45" width="60" height="110" rx="10" fill="#0F172A" stroke="#3B82F6" strokeWidth="2" />
+                      <rect x="76" y="55" width="48" height="85" rx="4" fill="#1E293B" />
+                      <circle cx="100" cy="50" r="2" fill="#64748B" />
+                      <rect x="85" y="70" width="30" height="30" rx="3" fill="#FFFFFF" />
+                      <rect x="88" y="73" width="8" height="8" fill="#0F172A" />
+                      <rect x="104" y="73" width="8" height="8" fill="#0F172A" />
+                      <rect x="88" y="89" width="8" height="8" fill="#0F172A" />
+                      <rect x="98" y="81" width="4" height="4" fill="#0F172A" />
+                      <path d="M55 70 Q45 100 55 130" stroke="#38BDF8" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.8" />
+                      <path d="M145 70 Q155 100 145 130" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" fill="none" opacity="0.8" />
+                    </svg>
+                  </div>
+                </div>
+                <p className="text-xs font-extrabold text-slate-700">
                   {t.noFilesYet}
                 </p>
-                <p className="text-[11px] text-slate-400">
-                  {language === 'en' ? 'No WhatsApp or mobile number saving needed.' : 'व्हाट्सएप या नंबर सेव करने की कोई जरूरत नहीं।'}
+                <p className="text-[11px] text-slate-400 max-w-xs mx-auto">
+                  {language === 'en' 
+                    ? 'Ask customer to aim phone camera at the QR code on the left. Selected files will beam straight here.' 
+                    : 'ग्राहक से कहें कि वह अपना फोन कैमरा बाईं तरफ के QR कोड पर दिखाए।'}
                 </p>
               </div>
             ) : (
               <div className="space-y-2.5 mt-3 max-h-56 overflow-y-auto">
                 {session.uploadedFiles.map((f, i) => (
-                  <div key={i} className="flex items-center justify-between bg-emerald-50/70 p-3 rounded-xl border border-emerald-200 text-xs">
+                  <div key={i} className="flex items-center justify-between bg-emerald-50/70 p-3 rounded-2xl border border-emerald-200 text-xs shadow-xs">
                     <div className="flex items-center gap-2.5 truncate">
                       <FileCheck className="w-5 h-5 text-emerald-600 flex-shrink-0" />
-                      <span className="font-bold text-slate-900 truncate">{f.originalName}</span>
+                      <div className="truncate">
+                        <div className="font-extrabold text-slate-900 truncate">{f.originalName}</div>
+                        <div className="text-[10px] text-slate-500 font-mono">{(f.fileSize / 1024).toFixed(0)} KB • Received</div>
+                      </div>
                     </div>
-                    <span className="text-[11px] font-bold text-emerald-800 bg-white px-2 py-0.5 rounded border border-emerald-200">
-                      {(f.fileSize / 1024).toFixed(0)} KB
-                    </span>
+                    {f.dataUrl && (
+                      <a
+                        href={f.dataUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-50 text-blue-600 font-bold text-[11px] border border-blue-200 shadow-xs flex items-center gap-1"
+                      >
+                        <span>{language === 'en' ? 'View' : 'देखें'}</span>
+                      </a>
+                    )}
                   </div>
                 ))}
               </div>
