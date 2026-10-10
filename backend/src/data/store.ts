@@ -182,21 +182,48 @@ class CyberSevaStore {
 
   constructor() {
     this.loadFromDisk();
+    this.startCleanupInterval();
+  }
+
+  getDataDir(): string {
+    const customDir = process.env.DATA_DIR;
+    if (customDir) {
+      return path.isAbsolute(customDir) ? customDir : path.join(process.cwd(), customDir);
+    }
+    return path.join(__dirname, '../../data');
+  }
+
+  startCleanupInterval() {
+    // Zero-retention privacy guardian: automatically purge expired customer mobile sessions
+    const timer = setInterval(() => {
+      const now = new Date();
+      for (const token of Object.keys(this.sessions)) {
+        const session = this.sessions[token];
+        if (session && new Date(session.expiresAt) < now) {
+          delete this.sessions[token];
+        }
+      }
+    }, 60 * 1000);
+    // Unref timer so it doesn't block graceful shutdown
+    if (timer.unref) timer.unref();
   }
 
   saveToDisk() {
     try {
-      const dataDir = path.join(__dirname, '../../data');
+      const dataDir = this.getDataDir();
       if (!fs.existsSync(dataDir)) {
         fs.mkdirSync(dataDir, { recursive: true });
       }
       const filePath = path.join(dataDir, 'cyberseva_db.json');
+      const tempPath = path.join(dataDir, 'cyberseva_db.json.tmp');
       const dump = {
         settings: this.settings,
         jobs: this.jobs,
+        inventory: this.inventory,
         auditLogs: this.auditLogs
       };
-      fs.writeFileSync(filePath, JSON.stringify(dump, null, 2), 'utf-8');
+      fs.writeFileSync(tempPath, JSON.stringify(dump, null, 2), 'utf-8');
+      fs.renameSync(tempPath, filePath);
     } catch (e) {
       console.error('Failed to save store to disk:', e);
     }
@@ -204,13 +231,15 @@ class CyberSevaStore {
 
   loadFromDisk() {
     try {
-      const filePath = path.join(__dirname, '../../data/cyberseva_db.json');
+      const dataDir = this.getDataDir();
+      const filePath = path.join(dataDir, 'cyberseva_db.json');
       if (fs.existsSync(filePath)) {
         const raw = fs.readFileSync(filePath, 'utf-8');
         const dump = JSON.parse(raw);
         if (dump.settings) this.settings = { ...this.settings, ...dump.settings };
         if (dump.jobs && Array.isArray(dump.jobs) && dump.jobs.length > 0) this.jobs = dump.jobs;
-        if (dump.auditLogs) this.auditLogs = dump.auditLogs;
+        if (dump.inventory && Array.isArray(dump.inventory)) this.inventory = dump.inventory;
+        if (dump.auditLogs && Array.isArray(dump.auditLogs)) this.auditLogs = dump.auditLogs;
         console.log(`[CyberSeva] Restored ${this.jobs.length} sales records from persistence.`);
       }
     } catch (e) {

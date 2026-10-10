@@ -65,14 +65,31 @@ router.post('/:token/upload', (req: Request, res: Response) => {
     return res.status(400).json({ success: false, message: 'No documents provided' });
   }
 
+  if (files.length > 20) {
+    return res.status(400).json({ success: false, message: 'Maximum 20 files per upload batch' });
+  }
+
+  if (session.uploadedFiles.length + files.length > 50) {
+    return res.status(400).json({ success: false, message: 'Session storage limit reached (max 50 documents per session)' });
+  }
+
+  const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg', 'application/pdf'];
+
   for (const file of files) {
+    const rawMime = file.mimeType ? String(file.mimeType).toLowerCase() : 'image/jpeg';
+    const mimeType = allowedMimeTypes.includes(rawMime) ? rawMime : 'image/jpeg';
+    const safeName = file.originalName ? String(file.originalName).replace(/[^\w\s.-]/gi, '').slice(0, 100) : 'Document.jpg';
+    const safeDataUrl = typeof file.dataUrl === 'string' && (file.dataUrl.startsWith('data:') || file.dataUrl.startsWith('http')) 
+      ? file.dataUrl 
+      : undefined;
+
     session.uploadedFiles.push({
       id: uuidv4(),
-      originalName: file.originalName || 'Document.jpg',
-      fileSize: file.fileSize || 102400,
-      mimeType: file.mimeType || 'image/jpeg',
+      originalName: safeName,
+      fileSize: Math.min(Number(file.fileSize) || 102400, 25 * 1024 * 1024),
+      mimeType,
       category: file.category || 'DOCUMENT',
-      dataUrl: file.dataUrl,
+      dataUrl: safeDataUrl,
       uploadedAt: new Date().toISOString()
     });
   }

@@ -12,8 +12,8 @@ router.get('/', (req: Request, res: Response) => {
       connected: true,
       bridgeVersion: '1.4.2-win64',
       spoolerStatus: 'RUNNING',
-      port: 9100,
-      host: '127.0.0.1'
+      port: process.env.PRINT_BRIDGE_PORT ? Number(process.env.PRINT_BRIDGE_PORT) : 9100,
+      host: process.env.PRINT_BRIDGE_HOST || '127.0.0.1'
     },
     printers: store.printers,
     activeQueue: store.printQueue

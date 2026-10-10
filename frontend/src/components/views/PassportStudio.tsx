@@ -17,9 +17,7 @@ interface PassportStudioProps {
 export const PassportStudio: React.FC<PassportStudioProps> = ({ onPrint, language }) => {
   const t = translations[language];
 
-  const [photoUrl, setPhotoUrl] = useState<string>(
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80'
-  );
+  const [photoUrl, setPhotoUrl] = useState<string>('/tools/passport.jpg');
 
   const [count, setCount] = useState<number>(8);
   const [paperSize, setPaperSize] = useState<'A4' | '4x6'>('A4');
@@ -90,7 +88,7 @@ export const PassportStudio: React.FC<PassportStudioProps> = ({ onPrint, languag
         </div>
 
         <button
-          onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80')}
+          onClick={() => setPhotoUrl('/tools/passport.jpg')}
           className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1.5 self-start sm:self-auto"
         >
           <Sparkles className="w-3.5 h-3.5 text-amber-500" />

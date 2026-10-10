@@ -70,7 +70,7 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady, la
         fileSize: 420 * 1024,
         mimeType: 'image/jpeg',
         category: 'AADHAAR_FRONT',
-        dataUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
+        dataUrl: '/tools/aadhaar.jpg',
         uploadedAt: new Date().toISOString()
       },
       {
@@ -79,7 +79,7 @@ export const CustomerQrView: React.FC<CustomerQrViewProps> = ({ onFilesReady, la
         fileSize: 210 * 1024,
         mimeType: 'image/jpeg',
         category: 'PHOTO',
-        dataUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+        dataUrl: '/tools/passport.jpg',
         uploadedAt: new Date().toISOString()
       }
     ];

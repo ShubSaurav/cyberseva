@@ -38,9 +38,10 @@ router.post('/', (req: Request, res: Response) => {
         }
       ];
 
-  const calculatedTotal = totalAmount !== undefined 
+  const rawTotal = totalAmount !== undefined 
     ? Number(totalAmount) 
-    : parsedServices.reduce((acc: number, s: any) => acc + (s.total || s.unitPrice * (s.quantity || 1)), 0);
+    : parsedServices.reduce((acc: number, s: any) => acc + (Number(s.total) || (Number(s.unitPrice) || 0) * (Number(s.quantity) || 1)), 0);
+  const calculatedTotal = !isNaN(rawTotal) && rawTotal >= 0 ? Math.round(rawTotal * 100) / 100 : 0;
 
   const nextNumber = 10290 + store.jobs.length + 1;
   const newJob: Job = {
@@ -87,7 +88,10 @@ router.patch('/:id', (req: Request, res: Response) => {
   }
   if (paymentStatus) job.paymentStatus = paymentStatus;
   if (paymentMode) job.paymentMode = paymentMode;
-  if (totalAmount !== undefined) job.totalAmount = Number(totalAmount);
+  if (totalAmount !== undefined) {
+    const parsed = Number(totalAmount);
+    if (!isNaN(parsed) && parsed >= 0) job.totalAmount = parsed;
+  }
   if (customerName) job.customerName = customerName;
 
   store.addAudit(job.operator, 'Job Updated', `Status changed to ${job.status}, Payment: ${job.paymentStatus}`, job.jobCode);

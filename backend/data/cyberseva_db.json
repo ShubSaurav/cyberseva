@@ -50,6 +50,60 @@
   },
   "jobs": [
     {
+      "id": "job-b07f69a1",
+      "jobCode": "#10297",
+      "customerName": "Suresh Verma",
+      "customerPhone": "",
+      "services": [
+        {
+          "id": "s-1791592504137",
+          "name": "Aadhaar PVC Card Print",
+          "category": "PRINT",
+          "unitPrice": 50,
+          "quantity": 1,
+          "total": 50
+        }
+      ],
+      "subtotal": 50,
+      "discount": 0,
+      "totalAmount": 50,
+      "paymentMode": "UPI_QR",
+      "paymentStatus": "PAID",
+      "status": "COMPLETED",
+      "operator": "Rajesh Sharma",
+      "notes": "",
+      "createdAt": "2026-10-10T00:35:04.138Z",
+      "completedAt": "2026-10-10T00:35:04.138Z",
+      "hasTemporaryFiles": false
+    },
+    {
+      "id": "job-2afb210a",
+      "jobCode": "#10296",
+      "customerName": "Walk-in Customer",
+      "customerPhone": "",
+      "services": [
+        {
+          "id": "s-1791441892509",
+          "name": "Test Print",
+          "category": "PRINT",
+          "unitPrice": 20,
+          "quantity": 1,
+          "total": 20
+        }
+      ],
+      "subtotal": 20,
+      "discount": 0,
+      "totalAmount": 20,
+      "paymentMode": "CASH",
+      "paymentStatus": "PAID",
+      "status": "COMPLETED",
+      "operator": "Rajesh Sharma",
+      "notes": "",
+      "createdAt": "2026-10-08T06:44:52.509Z",
+      "completedAt": "2026-10-08T06:44:52.509Z",
+      "hasTemporaryFiles": false
+    },
+    {
       "id": "job-a7ed4028",
       "jobCode": "#10295",
       "customerName": "Ramesh Kumar",
@@ -195,7 +249,93 @@
       "hasTemporaryFiles": true
     }
   ],
+  "inventory": [
+    {
+      "id": "inv-1",
+      "name": "A4 Copier Paper (JK Cedar 75 GSM)",
+      "category": "PAPER",
+      "currentStock": 14,
+      "unit": "Reams (500 sheets/ream)",
+      "minThreshold": 5,
+      "status": "GOOD",
+      "estimatedDaysLeft": 3.5,
+      "lastRestocked": "2026-09-29"
+    },
+    {
+      "id": "inv-2",
+      "name": "4x6 Glossy Photo Paper (Kodak 210 GSM)",
+      "category": "PAPER",
+      "currentStock": 35,
+      "unit": "Sheets",
+      "minThreshold": 50,
+      "status": "LOW",
+      "estimatedDaysLeft": 2,
+      "lastRestocked": "2026-09-24"
+    },
+    {
+      "id": "inv-3",
+      "name": "HP 88A LaserJet Black Toner",
+      "category": "INK_TONER",
+      "currentStock": 2,
+      "unit": "Cartridges",
+      "minThreshold": 2,
+      "status": "GOOD",
+      "estimatedDaysLeft": 18,
+      "lastRestocked": "2026-09-15"
+    },
+    {
+      "id": "inv-4",
+      "name": "Canon GI-790 Color Ink Bottle Set (CMYK)",
+      "category": "INK_TONER",
+      "currentStock": 1,
+      "unit": "Full Set (4 Bottles)",
+      "minThreshold": 2,
+      "status": "LOW",
+      "estimatedDaysLeft": 5,
+      "lastRestocked": "2026-09-10"
+    },
+    {
+      "id": "inv-5",
+      "name": "A4 Lamination Pouches (125 Micron)",
+      "category": "LAMINATION",
+      "currentStock": 65,
+      "unit": "Pouches",
+      "minThreshold": 30,
+      "status": "GOOD",
+      "estimatedDaysLeft": 8,
+      "lastRestocked": "2026-09-26"
+    },
+    {
+      "id": "inv-6",
+      "name": "ID Card Lamination Pouches",
+      "category": "LAMINATION",
+      "currentStock": 140,
+      "unit": "Pouches",
+      "minThreshold": 50,
+      "status": "GOOD",
+      "estimatedDaysLeft": 14,
+      "lastRestocked": "2026-09-20"
+    }
+  ],
   "auditLogs": [
+    {
+      "id": "log-1791592504138",
+      "timestamp": "06:05 AM",
+      "staffName": "Rajesh Sharma",
+      "jobCode": "#10297",
+      "action": "Sale Recorded",
+      "details": "Sale #10297 for ₹50 (UPI_QR)",
+      "privacySafe": true
+    },
+    {
+      "id": "log-1791441892509",
+      "timestamp": "12:14 PM",
+      "staffName": "Rajesh Sharma",
+      "jobCode": "#10296",
+      "action": "Sale Recorded",
+      "details": "Sale #10296 for ₹20 (CASH)",
+      "privacySafe": true
+    },
     {
       "id": "log-1791438741563",
       "timestamp": "11:22 AM",
